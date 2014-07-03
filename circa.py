@@ -21,6 +21,11 @@ class Circa(sdirc.Client):
 
 		self.connect()
 
+	def say(self, to, msg):
+		msg = [line.rstrip() for line in msg.split("\n")]
+		for line in msg:
+			sdirc.Client.say(self, to, line)
+
 	def load_module(self, name):
 		if name in self.modules:
 			return 2

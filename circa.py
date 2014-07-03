@@ -21,10 +21,28 @@ class Circa(sdirc.Client):
 
 		self.connect()
 
+	@staticmethod
+	def wrap(line):
+		words = []
+
+		width = 80
+		for word in line.split():
+			if len(word) + 1 > width:
+				words.append("\xFF")
+				width = 80 - len(word)
+			else:
+				width = width - len(word) - 1
+			words.append(word)
+
+		line2 = " ".join(words)
+		sublines = line2.split(" \xFF ")
+		return sublines
+
 	def say(self, to, msg):
 		msg = [line.rstrip() for line in msg.split("\n")]
 		for line in msg:
-			sdirc.Client.say(self, to, line)
+			for subline in Circa.wrap(line):
+				sdirc.Client.say(self, to, subline)
 
 	def load_module(self, name):
 		if name in self.modules:

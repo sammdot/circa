@@ -13,10 +13,7 @@ class PythonREPLModule(code.InteractiveInterpreter):
 		}
 
 	def write(self, data):
-		for line in data.split("\n"):
-			line = line.rstrip()
-			if len(line):
-				self.circa.send("PRIVMSG", self.target, line)
+		self.circa.say(self.target, data)
 
 	def runcode(self, cd):
 		sys.stdout = self

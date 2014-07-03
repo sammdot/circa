@@ -1,5 +1,6 @@
 import code
 import sys
+import traceback
 
 class PythonREPLModule(code.InteractiveInterpreter):
 	def __init__(self, circa):

@@ -33,9 +33,14 @@ class TriviaModule:
 
 	def end(self, fr, to, params):
 		if to in self.games:
-			game = self.games[to].host
-			...
+			game = self.games[to]
+			if fr == game.host:
+				self.circa.say(to, "game over. final scores:")
+				final = ["{0} = {1}".format(*x) for x in \
+					sorted(game.scores.items(), key=lambda i: -i[1])]
+			else:
+				self.circa.say(to, "{0}: you are not trivia host".format(fr))
 		else:
-			self.circa.say("no trivia running in {0}".format(to))
+			self.circa.say(to, "no trivia running in {0}".format(to))
 
 module = TriviaModule

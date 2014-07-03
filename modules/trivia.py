@@ -35,9 +35,9 @@ class TriviaModule:
 		if to in self.games:
 			game = self.games[to]
 			if fr == game.host:
-				self.circa.say(to, "game over. final scores:")
 				final = ["{0} = {1}".format(*x) for x in \
 					sorted(game.scores.items(), key=lambda i: -i[1])]
+				self.circa.say(to, "game over. final scores:" + ", ".join(final))
 			else:
 				self.circa.say(to, "{0}: you are not trivia host".format(fr))
 		else:

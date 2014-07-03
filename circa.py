@@ -9,6 +9,7 @@ import modules
 class Circa(sdirc.Client):
 	def __init__(self, **conf):
 		conf["autoconn"] = False
+		conf["prefix"] = conf["prefix"] if "prefix" in conf else "!"
 		sdirc.Client.__init__(self, **conf)
 
 		self.modules = {}

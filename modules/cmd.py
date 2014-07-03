@@ -7,7 +7,7 @@ class CommandModule:
 		}
 
 	def command(self, fr, to, text, msg):
-		if text[0] == '\\':
+		if text.startswith(self.circa.conf["prefix"]):
 			cmd, *params = text.split()
 			self.circa.emit("cmd." + cmd[1:], fr, to, params)
 

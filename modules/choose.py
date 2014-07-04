@@ -19,7 +19,6 @@ class ChooseModule:
 			self.circa.say(to, "{0}: {1}".format(fr, random.choice(choices)))
 
 	def roll(self, fr, to, params):
-		print(fr, to, params)
 		dice = params[0]
 		if dice.count("d") > 1:
 			self.circa.notice(fr, "roll <n>d<n>")

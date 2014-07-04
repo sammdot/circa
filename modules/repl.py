@@ -13,7 +13,10 @@ class PythonREPLModule(code.InteractiveInterpreter):
 		}
 
 	def write(self, data):
-		self.circa.say(self.target, data)
+		for line in data.split("\n"):
+			line = line.rstrip()
+			if len(line):
+				self.circa.send("PRIVMSG", self.target, line)
 
 	def runcode(self, cd):
 		sys.stdout = self
@@ -27,7 +30,7 @@ class PythonREPLModule(code.InteractiveInterpreter):
 
 	def repl(self, fr, to, text, msg):
 		if fr == "sammi" and text.startswith(">>> "):
-			self.target = to
+			self.target = to if to in self.circa.channels else fr
 			ret = self.runsource(text.split(" ", 1)[1])
 			if not ret:
 				self.showtraceback()

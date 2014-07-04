@@ -19,7 +19,7 @@ class ChooseModule:
 			self.circa.say(to, "{0}: {1}".format(fr, random.choice(choices)))
 
 	def roll(self, fr, to, params):
-		numdice, amtdice = 1, 6
+		numdice, sides = 1, 6
 		if len(params):
 			dice = params[0]
 			if dice.count("d") > 1:
@@ -32,10 +32,10 @@ class ChooseModule:
 			except ValueError:
 				pass
 			try:
-				amtdice = int(b)
+				sides = int(b)
 			except ValueError:
 				pass
 		self.circa.say(to, "{0}: {1}".format(fr, ", ".join(
-			[str(random.randrange(1, amtdice)) for i in range(numdice)])))
+			[str(random.randrange(1, sides)) for i in range(numdice)])))
 
 module = ChooseModule

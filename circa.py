@@ -14,7 +14,8 @@ class Circa(sdirc.Client):
 
 		self.modules = {}
 
-		self.add_listener("registered", lambda m: self.send("UMODE2", "+B"))
+		self.add_listener("registered",
+			lambda m: (self.send("UMODE2", "+B"), self.say("groupserv", "join !bots")))
 		for module in "cmd module leave".split() + self.conf["modules"]:
 			self.load_module(module)
 

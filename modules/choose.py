@@ -19,21 +19,22 @@ class ChooseModule:
 			self.circa.say(to, "{0}: {1}".format(fr, random.choice(choices)))
 
 	def roll(self, fr, to, params):
-		dice = params[0]
-		if dice.count("d") > 1:
-			self.circa.notice(fr, "roll <n>d<n>")
-		a, b = dice.split("d")[0], 6
-		if "d" in dice:
-			b = dice.split("d")[1]
 		numdice, amtdice = 1, 6
-		try:
-			numdice = int(a)
-		except ValueError:
-			pass
-		try:
-			amtdice = int(b)
-		except ValueError:
-			pass
+		if len(params):
+			dice = params[0]
+			if dice.count("d") > 1:
+				self.circa.notice(fr, "roll <n>d<n>")
+			a, b = 1, 6
+			if "d" in dice:
+				a, b = dice.split("d")
+			try:
+				numdice = int(a)
+			except ValueError:
+				pass
+			try:
+				amtdice = int(b)
+			except ValueError:
+				pass
 		self.circa.say(to, "{0}: {1}".format(fr, ", ".join(
 			[str(random.randrange(1, amtdice)) for i in range(numdice)])))
 

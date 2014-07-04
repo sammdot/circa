@@ -6,6 +6,8 @@ import threading
 import importlib
 import modules
 
+VERSION = "1.0"
+
 class Circa(sdirc.Client):
 	def __init__(self, **conf):
 		conf["autoconn"] = False
@@ -20,8 +22,12 @@ class Circa(sdirc.Client):
 			self.load_module(module)
 
 		self.add_listener("invite", lambda to, by, m: self.join(to))
+		self.add_listener("ctcp-version", self.version)
 
 		self.connect()
+
+	def version(self, fr, to, msg):
+		self.say(fr, "\x01VERSION circa {0}\x01".format(VERSION))
 
 	@staticmethod
 	def wrap(line):

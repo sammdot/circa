@@ -76,7 +76,6 @@ class Circa(sdirc.Client):
 				self.remove_listener(event, listener)
 
 		del self.modules[name]
-		self.modules.pop(name)
 
 		return 0
 

@@ -27,7 +27,7 @@ class Circa(sdirc.Client):
 		self.connect()
 
 	def version(self, fr, to, msg):
-		self.say(fr, "\x01VERSION circa {0}\x01".format(VERSION))
+		self.notice(fr, "\x01VERSION circa {0}\x01".format(VERSION))
 
 	@staticmethod
 	def wrap(line):

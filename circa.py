@@ -46,10 +46,10 @@ class Circa(sdirc.Client):
 		sublines = line2.split(" \xFF ")
 		return sublines
 
-	def say(self, to, msg):
+	def say(self, to, msg, wrap=True):
 		msg = [line.rstrip() for line in msg.split("\n")]
 		for line in msg:
-			for subline in Circa.wrap(line):
+			for subline in (Circa.wrap(line) if wrap else line):
 				sdirc.Client.say(self, to, subline)
 
 	def load_module(self, name):

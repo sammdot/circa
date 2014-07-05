@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-import sdirc
+from .irc import Client
 import yaml
 import threading
 import importlib
@@ -8,11 +8,11 @@ import modules
 
 VERSION = "1.0"
 
-class Circa(sdirc.Client):
+class Circa(Client):
 	def __init__(self, **conf):
 		conf["autoconn"] = False
 		conf["prefix"] = conf["prefix"] if "prefix" in conf else "\\"
-		sdirc.Client.__init__(self, **conf)
+		Client.__init__(self, **conf)
 
 		self.modules = {}
 

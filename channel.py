@@ -17,5 +17,8 @@ class Channel:
 		self.topic = None
 		self.mode = set()
 
+	def __repr__(self):
+		return "Channel({0})".format(self.name)
+
 	def __contains__(self, nick):
 		return nicklower(nick) in self.users

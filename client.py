@@ -67,13 +67,20 @@ class Client:
 		self.sock.sendall(bytes(message + "\r\n", "utf-8"))
 		logging.debug("Send: %s", message.rstrip())
 
-	def say(self, to, *msg):
+	def say(self, to, msg):
 		"""Send a message to a user or channel."""
-		self.send("PRIVMSG", to, " ".join(msg))
+		self.send("PRIVMSG", to, msg)
 
-	def notice(self, to, *msg):
+	def notice(self, to, msg):
 		"""Send a notice to a user or channel."""
-		self.send("NOTICE", to, " ".join(msg))
+		self.send("NOTICE", to, msg)
+
+	def ctcp(self, to, type, text):
+		"""Send a CTCP message. 'type' is either 'privmsg' or 'notice'."""
+		(self.say if type == "privmsg" else self.notice)(to, "\x01{0}\x01".format(text))
+
+	def action(self, to, msg):
+		self.ctcp(to, "privmsg", "ACTION {0}".format(msg))
 
 	def join(self, chan):
 		"""Join a channel."""

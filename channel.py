@@ -28,10 +28,10 @@ class ChannelList:
 		self._channels = {}
 
 	def __getattr__(self, chan):
-		return self._channels[chan] if chan in self._channels else None
+		return self._channels.get(chan)
 
 	def __setattr__(self, chan, value):
 		self._channels[chan] = value
 
-	def __contains__(self, chan):
+	def __hasattr__(self, chan):
 		return chan in self._channels

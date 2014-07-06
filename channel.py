@@ -22,3 +22,16 @@ class Channel:
 
 	def __contains__(self, nick):
 		return nicklower(nick) in self.users
+
+class ChannelList:
+	def __init__(self):
+		self._channels = {}
+
+	def __getattr__(self, chan):
+		return self._channels[chan] if chan in self._channels else None
+
+	def __setattr__(self, chan, value):
+		self._channels[chan] = value
+
+	def __contains__(self, chan):
+		return chan in self._channels

@@ -3,6 +3,7 @@ import socket
 import threading
 
 from channel import Channel, ChannelList
+from message import Message
 
 class Client:
 	def __init__(self, server, nick, username, realname, **conf):
@@ -67,4 +68,19 @@ class Client:
 
 	def listen(self):
 		"""Listen for incoming messages from the IRC server."""
-		pass
+
+		if not self.sock:
+			logging.error("%s not connected to server", self.conf["server"])
+			return
+
+		buf = ""
+		while True:
+			buf += str(self.sock.recv(4096), "utf-8")
+			*msgs, buf = buf.split("\r\n")
+			for msg in msgs:
+				thread = threading.Thread(target=lambda: self.handle(Message.parse(msg)))
+				logging.debug("%s dispatching handler thread %s", threading.current_thread().name, thread.name)
+				thread.start()
+
+	def handle(self, msg):
+		print(msg.raw)

@@ -28,6 +28,7 @@ class Client:
 		})
 
 		self.channels = ChannelList()
+		self.listeners = {}
 
 		if self.conf["autoconn"]:
 			thread = threading.Thread(name=self.conf["server"], target=self.connect)
@@ -83,6 +84,37 @@ class Client:
 				logging.debug("%s handler thread %s [%s]",
 					threading.current_thread().name, thread.name, m.command)
 				thread.start()
+
+	def add_listener(self, event, function):
+		"""Add a function to listen for the specified event."""
+		if event not in self.listeners:
+			self.listeners[event] = []
+		self.listeners[event].append(function)
+
+	def remove_listener(self, event, function):
+		"""Remove a function as a listener from the specified event."""
+		if event not in self.listeners:
+			return
+		self.listeners[event] = [l for l in self.listeners[event] if l != function]
+
+	def remove_listeners(self, event):
+		"""Remove all functions listening for the specified event."""
+		if event not in self.listeners:
+			return
+		del self.listeners[event]
+
+	def emit(self, event, *params):
+		"""Emit an event, and pass the parameters to all functions listening for the event."""
+		if event in self.listeners:
+			for listener in self.listeners[event]:
+				try:
+					thread = threading.Thread(target=lambda: listener(*params))
+					logging.debug("%s worker thread %s [%s, %s]",
+						threading.current_thread().name, thread.name, event, listener.__name__)
+					thread.start()
+				except TypeError as e:
+					logging.error("%s invalid number of parameters [%s, %s]",
+						threading.current_thread().name, event, listener.__name__)
 
 	def handle(self, msg):
 		c = msg.command

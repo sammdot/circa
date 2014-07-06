@@ -25,14 +25,13 @@ class Channel:
 
 class ChannelList:
 	def __init__(self):
-		self._channels = {}
+		pass
 
 	def __getattr__(self, chan):
-		if chan != "_channels":
-			return self._channels.get(chan)
+		return self.__dict__.get(chan)
 
 	def __setattr__(self, chan, value):
-		self._channels[chan] = value
+		self.__dict__[chan] = value
 
 	def __contains__(self, chan):
-		return chan in self._channels
+		return chan in self.__dict__

@@ -67,9 +67,24 @@ class Client:
 		self.sock.sendall(bytes(message + "\r\n", "utf-8"))
 		logging.debug("Send: %s", message.rstrip())
 
+	def say(self, to, *msg):
+		"""Send a message to a user or channel."""
+		self.send("PRIVMSG", to, " ".join(msg))
+
+	def notice(self, to, *msg):
+		"""Send a notice to a user or channel."""
+		self.send("NOTICE", to, " ".join(msg))
+
+	def join(self, chan):
+		"""Join a channel."""
+		self.send("JOIN", chan)
+
+	def part(self, chan, reason=""):
+		"""Leave a channel (and optionally provide a reason)."""
+		self.send("PART", chan, reason)
+
 	def listen(self):
 		"""Listen for incoming messages from the IRC server."""
-
 		if not self.sock:
 			logging.error("%s not connected to server", self.conf["server"])
 			return

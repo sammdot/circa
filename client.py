@@ -31,7 +31,7 @@ class Client:
 
 		if self.conf["autoconn"]:
 			thread = threading.Thread(name=self.conf["server"], target=self.connect)
-			logging.debug("Dispatching server thread %s", thread.name)
+			logging.debug("server %s", thread.name)
 			thread.start()
 
 	def connect(self):
@@ -48,7 +48,7 @@ class Client:
 			self.send("USER", self.conf["username"], 8, "*", self.conf["realname"])
 
 			thread = threading.Thread(name=self.conf["server"] + "-listen", target=self.listen)
-			logging.debug("Dispatching listener thread %s", thread.name)
+			logging.debug("listener %s", thread.name)
 			thread.start()
 		except socket.error as e:
 			logging.error("%s cannot connect: %s", self.conf["server"], e)
@@ -78,9 +78,15 @@ class Client:
 			buf += str(self.sock.recv(4096), "utf-8")
 			*msgs, buf = buf.split("\r\n")
 			for msg in msgs:
-				thread = threading.Thread(target=lambda: self.handle(Message.parse(msg)))
-				logging.debug("%s dispatching handler thread %s", threading.current_thread().name, thread.name)
+				m = Message.parse(msg)
+				thread = threading.Thread(target=lambda: self.handle(m))
+				logging.debug("%s handler thread %s [%s]",
+					threading.current_thread().name, thread.name, m.command)
 				thread.start()
 
 	def handle(self, msg):
-		print(msg.raw)
+		c = msg.command
+		if c == "PING":
+			self.send("PONG", msg.params[0])
+		else:
+			print(msg.raw)

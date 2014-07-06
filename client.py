@@ -1,3 +1,4 @@
+import logging
 import socket
 import threading
 
@@ -26,3 +27,22 @@ class Client:
 		})
 
 		self.channels = ChannelList()
+
+		if self.conf["autoconn"]:
+			thread = threading.Thread(name=self.conf["server"], target=self.connect)
+			logging.debug("Dispatching server thread %s", thread.name)
+			thread.start()
+
+	def connect(self):
+		"Attempt to connect to the server. Log in if successful."
+
+		self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+
+		try:
+			self.sock.connect((self.conf["server"], self.conf["port"]))
+			self.server = self.conf["server"]
+			logging.info("%s connected", self.server)
+		except socket.error as e:
+			logging.error("%s cannot connect: %s", self.conf["server"], e)
+			self.sock.close()
+			self.sock = None

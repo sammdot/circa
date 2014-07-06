@@ -58,7 +58,7 @@ class Client:
 		"""Send a raw message to the server. Prepend a colon to the last parameter."""
 
 		if not self.sock:
-			logging.error("%s not connected to server", threading.current_thread().name)
+			logging.error("%s not connected to server", self.conf["server"])
 			return
 
 		message = " ".join(map(str, msg[:-1])) + " :" + str(msg[-1])

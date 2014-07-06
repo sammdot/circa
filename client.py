@@ -34,7 +34,7 @@ class Client:
 			thread.start()
 
 	def connect(self):
-		"Attempt to connect to the server. Log in if successful."
+		"""Attempt to connect to the server. Log in if successful."""
 
 		self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
@@ -42,7 +42,29 @@ class Client:
 			self.sock.connect((self.conf["server"], self.conf["port"]))
 			self.server = self.conf["server"]
 			logging.info("%s connected", self.server)
+
+			self.send("NICK", self.conf["nick"])
+			self.send("USER", self.conf["username"], 8, "*", self.conf["realname"])
+
+			thread = threading.Thread(name=self.conf["server"] + "-listen", target=self.listen)
+			logging.debug("Dispatching listener thread %s", thread.name)
+			thread.start()
 		except socket.error as e:
 			logging.error("%s cannot connect: %s", self.conf["server"], e)
 			self.sock.close()
 			self.sock = None
+
+	def send(self, *msg):
+		"""Send a raw message to the server. Prepend a colon to the last parameter."""
+
+		if not self.sock:
+			logging.error("%s not connected to server", threading.current_thread().name)
+			return
+
+		message = " ".join(map(str, msg[:-1])) + " :" + str(msg[-1])
+		self.sock.send(bytes(message + "\r\n", "utf-8"))
+		logging.debug("Send: %s", message.rstrip())
+
+	def listen(self):
+		"""Listen for incoming messages from the IRC server."""
+		pass

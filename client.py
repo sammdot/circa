@@ -62,7 +62,7 @@ class Client:
 			return
 
 		message = " ".join(map(str, msg[:-1])) + " :" + str(msg[-1])
-		self.sock.send(bytes(message + "\r\n", "utf-8"))
+		self.sock.sendall(bytes(message + "\r\n", "utf-8"))
 		logging.debug("Send: %s", message.rstrip())
 
 	def listen(self):

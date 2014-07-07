@@ -4,6 +4,7 @@ import threading
 
 from channel import Channel, ChannelList
 from message import Message
+from server import Server
 
 class Client:
 	def __init__(self, server, nick, username, realname, **conf):
@@ -42,8 +43,8 @@ class Client:
 
 		try:
 			self.sock.connect((self.conf["server"], self.conf["port"]))
-			self.server = self.conf["server"]
-			logging.info("%s connected", self.server)
+			self.server = Server(self.conf["server"], self.conf["port"])
+			logging.info("%s connected", self.server.host)
 
 			self.send("NICK", self.conf["nick"])
 			self.send("USER", self.conf["username"], 8, "*", self.conf["realname"])

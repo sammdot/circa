@@ -29,7 +29,9 @@ class Client:
 		})
 
 		self.channels = ChannelList()
-		self.listeners = {}
+		self.listeners = {
+			"ping": [self.pong]
+		}
 
 		if self.conf["autoconn"]:
 			thread = threading.Thread(name=self.conf["server"], target=self.connect)
@@ -50,7 +52,7 @@ class Client:
 			self.send("USER", self.conf["username"], 8, "*", self.conf["realname"])
 
 			thread = threading.Thread(name=self.conf["server"] + "-listen", target=self.listen)
-			logging.debug("listener %s", thread.name)
+			logging.debug("(%s) listener %s", threading.current_thread().name, thread.name)
 			thread.start()
 		except socket.error as e:
 			logging.error("(%s) cannot connect: %s", self.conf["server"], e)
@@ -66,7 +68,7 @@ class Client:
 
 		message = " ".join(map(str, msg[:-1])) + " :" + str(msg[-1])
 		self.sock.sendall(bytes(message + "\r\n", "utf-8"))
-		logging.debug("(%s) %s", self.conf["server"], message.rstrip())
+		logging.debug("(%s) %s", threading.current_thread().name, message.rstrip())
 
 	def say(self, to, msg):
 		"""Send a message to a user or channel."""
@@ -142,6 +144,11 @@ class Client:
 	def handle(self, msg):
 		c = msg.command
 		if c == "PING":
-			self.send("PONG", msg.params[0])
+			self.emit("ping", msg.params[0])
 		else:
 			print(msg.raw)
+
+	# worker functions
+
+	def pong(self, msg):
+		self.send("PONG", msg)

@@ -53,7 +53,7 @@ class Client:
 			logging.debug("listener %s", thread.name)
 			thread.start()
 		except socket.error as e:
-			logging.error("%s cannot connect: %s", self.conf["server"], e)
+			logging.error("(%s) cannot connect: %s", self.conf["server"], e)
 			self.sock.close()
 			self.sock = None
 
@@ -61,12 +61,12 @@ class Client:
 		"""Send a raw message to the server. Prepend a colon to the last parameter."""
 
 		if not self.sock:
-			logging.error("%s not connected to server", self.conf["server"])
+			logging.error("(%s) not connected to server", self.conf["server"])
 			return
 
 		message = " ".join(map(str, msg[:-1])) + " :" + str(msg[-1])
 		self.sock.sendall(bytes(message + "\r\n", "utf-8"))
-		logging.debug("Send: %s", message.rstrip())
+		logging.debug("(%s) %s", self.conf["server"], message.rstrip())
 
 	def say(self, to, msg):
 		"""Send a message to a user or channel."""
@@ -94,7 +94,7 @@ class Client:
 	def listen(self):
 		"""Listen for incoming messages from the IRC server."""
 		if not self.sock:
-			logging.error("%s not connected to server", self.conf["server"])
+			logging.error("(%s) not connected to server", self.conf["server"])
 			return
 
 		buf = ""
@@ -104,7 +104,7 @@ class Client:
 			for msg in msgs:
 				m = Message.parse(msg)
 				thread = threading.Thread(target=lambda: self.handle(m))
-				logging.debug("%s handler thread %s [%s]",
+				logging.debug("(%s) handler thread %s [%s]",
 					threading.current_thread().name, thread.name, m.command)
 				thread.start()
 
@@ -132,11 +132,11 @@ class Client:
 			for listener in self.listeners[event]:
 				try:
 					thread = threading.Thread(target=lambda: listener(*params))
-					logging.debug("%s worker thread %s [%s, %s]",
+					logging.debug("(%s) worker thread %s [%s, %s]",
 						threading.current_thread().name, thread.name, event, listener.__name__)
 					thread.start()
 				except TypeError as e:
-					logging.error("%s invalid number of parameters [%s, %s]",
+					logging.error("(%s) invalid number of parameters [%s, %s]",
 						threading.current_thread().name, event, listener.__name__)
 
 	def handle(self, msg):

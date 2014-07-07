@@ -1,4 +1,5 @@
 import logging
+import re
 import socket
 import threading
 
@@ -29,9 +30,9 @@ class Client:
 		})
 
 		self.channels = ChannelList()
-		self.listeners = {
-			"ping": [self.pong]
-		}
+		self.listeners = {}
+
+		self.nickmod = 0
 
 		if self.conf["autoconn"]:
 			thread = threading.Thread(name=self.conf["server"], target=self.connect)
@@ -141,14 +142,91 @@ class Client:
 					logging.error("(%s) invalid number of parameters [%s, %s]",
 						threading.current_thread().name, event, listener.__name__)
 
+	def _ctcp(self, fr, to, text, type):
+		text = text[1:text.index("\x01")]
+		parts = text.split()
+		self.emit("ctcp", fr, to, text, type)
+		self.emit("ctcp." + type, fr, to, text)
+
+		if type == "privmsg":
+			if text == "VERSION":
+				self.emit("ctcp.version", fr, to)
+			elif len(parts) > 1 and parts[0] == "ACTION":
+				self.emit("action", fr, to, " ".join(parts[1:]))
+			elif len(parts) > 1 and parts[0] == "PING":
+				self.ctcp(fr, "notice", "PONG " + " ".join(parts[1:]))
+
 	def handle(self, msg):
 		c = msg.command
-		if c == "PING":
+		if c == "001":
+			self.nick = nick
+			self.emit("registered", msg.params[0])
+		elif c == "004":
+			self.server.usermodes = set(msg.params[3])
+		elif c == "005":
+			for p in msg.params:
+				if "=" in p:
+					param, value = p.split("=")
+					if param == "CHANLIMIT":
+						for pair in value.split(","):
+							typ, num = pair.split(":")
+							self.server.chlimit[typ] = int(num)
+					elif param == "CHANMODES":
+						modes = value.split(",")
+						self.server.chmodes = dict(zip("abcd", map(set, modes)))
+					elif param == "CHANTYPES":
+						self.server.types = set(value)
+					elif param == "CHANNELLEN":
+						self.server.chlength = int(value)
+					elif param == "IDCHAN":
+						for pair in value.split(","):
+							typ, num = pair.split(":")
+							self.server.idlength[typ] = int(num)
+					elif param == "KICKLEN":
+						self.server.kicklength = int(value)
+					elif param == "NICKLEN":
+						self.server.nicklength = int(value)
+					elif param == "PREFIX":
+						if re.match(r"^\((.*)\)(.*)$", value):
+							modes = value.split(")")[0][1:]
+							prefixes = value.split(")")[1]
+
+							self.server.prefix_mode = dict(zip(prefixes, modes))
+							self.server.mode_prefix = dict(zip(modes, prefixes))
+
+							self.server.chmodes["b"].update(modes)
+					elif param == "TARGMAX":
+						for pair in value.split(","):
+							typ, num = pair.split(":")
+							self.server.maxtargets[typ] = int(num) if num else 0
+					elif param == "TOPICLEN":
+						self.server.topiclength = int(value)
+		elif c == "433":
+			self.nickmod += 1
+			self.send("NICK", self.conf["nick"] + self.nickmod * "_")
+		elif c == "PING":
+			self.send("PONG", msg.params[0])
 			self.emit("ping", msg.params[0])
+		elif c == "PONG":
+			self.emit("pong", msg.params[0])
+		elif c == "NOTICE":
+			fr, to = msg.nick, msg.params[0]
+			text = msg.params[1] or ""
+			if text[0] == "\x01" and "\x01" in text[1:]:
+				self._ctcp(fr, to, text, "notice")
+			else:
+				self.emit("notice", fr, to, text)
+		elif c == "MODE":
+			pass # TODO
+		elif c == "NICK":
+			nick = msg.params[0]
+			if msg.nick = self.nick:
+				self.nick = nick
+			chans = [i.name for i in filter(lambda c: msg.nick in c, self.channels.values())]
+			for chan in self.channels.values():
+				chan.users[nick] = chan.users[msg.nick]
+				chan.users.pop(nick)
+			self.emit("nick", msg.nick, nick, chans)
+
 		else:
 			print(msg.raw)
-
-	# worker functions
-
-	def pong(self, msg):
-		self.send("PONG", msg)

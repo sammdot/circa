@@ -159,7 +159,7 @@ class Client:
 	def handle(self, msg):
 		c = msg.command
 		if c == "001":
-			self.nick = nick
+			self.nick = self.conf["nick"] + self.nickmod * "_"
 			self.emit("registered", msg.params[0])
 		elif c == "004":
 			self.server.usermodes = set(msg.params[3])
@@ -220,7 +220,7 @@ class Client:
 			pass # TODO
 		elif c == "NICK":
 			nick = msg.params[0]
-			if msg.nick = self.nick:
+			if msg.nick == self.nick:
 				self.nick = nick
 			chans = [i.name for i in filter(lambda c: msg.nick in c, self.channels.values())]
 			for chan in self.channels.values():

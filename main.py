@@ -51,7 +51,7 @@ class Circa(Client):
 		msg = [line.rstrip() for line in msg.split("\n")]
 		for line in msg:
 			for subline in (Circa.wrap(line) if wrap else line):
-				sdirc.Client.say(self, to, subline)
+				Client.say(self, to, subline)
 
 	def load_module(self, name):
 		if name in self.modules:

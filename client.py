@@ -228,12 +228,12 @@ class Client:
 				chan.users.pop(nick)
 			self.emit("nick", msg.nick, nick, chans)
 		elif c == "375":
-			self.motd = msg.params[1] + "\n"
+			self.server.motd = msg.params[1] + "\n"
 		elif c == "372":
-			self.motd += msg.params[1] + "\n"
+			self.server.motd += msg.params[1] + "\n"
 		elif c == "376" or c == "422":
-			self.motd += msg.params[1] + "\n"
-			self.emit("motd", self.motd)
+			self.server.motd += msg.params[1] + "\n"
+			self.emit("motd", self.server.motd)
 		elif c == "353":
 			channel = self.channels[msg.params[2][1:]]
 			if channel:

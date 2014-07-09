@@ -6,7 +6,7 @@ class CommandModule:
 			"message": [self.command]
 		}
 
-	def command(self, fr, to, text, msg):
+	def command(self, fr, to, text):
 		if text.startswith(self.circa.conf["prefix"]):
 			cmd, *params = text.split()
 			self.circa.emit("cmd." + cmd[1:], fr, to, params)

@@ -3,6 +3,8 @@ class Server:
 		self.host = host
 		self.port = port
 
+		self.motd = ""
+
 		self.usermodes = set()
 		self.kicklength = 0
 		self.maxlist = {}

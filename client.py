@@ -227,6 +227,95 @@ class Client:
 				chan.users[nick] = chan.users[msg.nick]
 				chan.users.pop(nick)
 			self.emit("nick", msg.nick, nick, chans)
-
-		else:
-			print(msg.raw)
+		elif c == "375":
+			self.motd = msg.params[1] + "\n"
+		elif c == "372":
+			self.motd += msg.params[1] + "\n"
+		elif c == "376" or c == "422":
+			self.motd += msg.params[1] + "\n"
+			self.emit("motd", self.motd)
+		elif c == "353":
+			channel = self.channels[msg.params[2][1:]]
+			if channel:
+				users = msg.params[3].strip().split()
+				for user in users:
+					if user[0] in self.server.prefix_mode:
+						channel.users[user[1:]] = user[0]
+					else:
+						channel.users[user] = ""
+		elif c == "366":
+			channel = self.channels[msg.params[1][1:]]
+			if channel:
+				self.emit("names", msg.params[1], channel.users)
+				self.send("MODE", msg.params[1])
+		elif c == "332":
+			channel = self.channels[msg.params[1][1:]]
+			if channel:
+				channel.topic = msg.params[2]
+		# 301, 311, 312, 313, 317, 318, 319, 330, 321, 322, 323, 333
+		elif c == "TOPIC":
+			self.emit("topic", msg.params[0], msg.params[1], msg.nick, msg)
+			channel = self.channels[msg.params[0][1:]]
+			if channel:
+				channel.topic = msg.params[1]
+				channel.topicby = msg.nick
+		elif c == "324":
+			channel = self.channels[msg.params[1][1:]]
+			if channel:
+				channel.mode = msg.params[2]
+		elif c == "329":
+			channel = self.channels[msg.params[1][1:]]
+			if channel:
+				channel.created = int(msg.params[2])
+		elif c == "JOIN":
+			chan = msg.params[0]
+			if self.nick == msg.nick:
+				self.channels[chan[1:]] = Channel(chan)
+			else:
+				channel = self.channels[chan[1:]]
+				if channel:
+					channel.users[msg.nick] = ""
+			self.emit("join", chan, msg.nick)
+		elif c == "PART":
+			chan = msg.params[0]
+			self.emit("part", chan, msg.nick)
+			if self.nick == msg.nick:
+				self.channels.pop(chan)
+			else:
+				channel = self.channels[chan]
+				if channel:
+					del channel.users[msg.nick]
+		elif c == "KICK":
+			chan, who, reason, *rest = msg.params
+			self.emit("kick", chan, who, msg.nick, reason)
+			if self.nick == msg.nick:
+				self.channels.pop(chan)
+			else:
+				channel = self.channels[chan]
+				if channel:
+					channel.users.pop(who)
+		elif c == "KILL":
+			nick = msg.params[0]
+			channels = []
+			for chan in self.channels:
+				channels.append(chan.name)
+				chan.users.pop(nick)
+			self.emit("kill", nick, msg.params[1], channels, msg)
+		elif c == "PRIVMSG":
+			fr, to = msg.nick, msg.params[0]
+			text = " ".join(msg.params[1:])
+			if text[0] == "\x01" and "\x01" in text[1:]:
+				self._ctcp(fr, to, text, "privmsg", msg)
+			else:
+				self.emit("message", fr, to, text, msg)
+			self.emit("pm", fr, text, msg)
+		elif c == "INVITE":
+			self.emit("invite", msg.params[1], msg.nick)
+		elif c == "QUIT":
+			if self.nick == msg.nick:
+				return
+			channels = []
+			for chan in self.channels:
+				channels.append(chan.name)
+				self.channels[chan].users.pop(msg.nick)
+			self.emit("quit", msg.nick, msg.params[0], channels)

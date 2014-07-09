@@ -17,8 +17,7 @@ class Circa(Client):
 
 		self.modules = {}
 
-		self.add_listener("registered",
-			lambda m: (self.send("UMODE2", "+B"), self.say("groupserv", "join !bots")))
+		self.add_listener("registered", self.onreg)
 		for module in "cmd module leave".split() + self.conf["modules"]:
 			self.load_module(module)
 
@@ -26,6 +25,13 @@ class Circa(Client):
 		self.add_listener("ctcp-version", self.version)
 
 		self.connect()
+
+	def onreg(self, motd):
+		self.send("UMODE2", "+B")
+		self.say("GroupServ", "join !bots")
+		if self.conf["autorejoin"]:
+			for chan in self.conf["channels"]:
+				self.join(chan)
 
 	def version(self, fr, to, msg):
 		self.notice(fr, "\x01VERSION circa {0}\x01".format(VERSION))

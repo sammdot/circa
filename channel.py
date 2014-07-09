@@ -23,15 +23,15 @@ class Channel:
 	def __contains__(self, nick):
 		return nicklower(nick) in self.users
 
-class ChannelList:
+class ChannelList(dict):
 	def __init__(self):
 		pass
 
 	def __getattr__(self, chan):
-		return self.__dict__.get(chan)
+		return self[chan]
 
 	def __setattr__(self, chan, value):
-		self.__dict__[chan] = value
+		self[chan] = value
 
 	def __contains__(self, chan):
-		return chan in self.__dict__
+		return chan in self

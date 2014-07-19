@@ -89,4 +89,24 @@ class Client:
 	
 	def part(self, chan, reason=None):
 		self.send("PART", chan, reason or "")
-	
+
+	def listen(self):
+		"""Listen for incoming messages from the IRC server."""
+		if not self.sock:
+			logging.error("Not connected to server")
+			return
+		
+		buf = ""
+		while True:
+			try:
+				buf += str(self.sock.recv(4096), "utf-8")
+				*msgs, buf = buf.split("\r\n")
+				for msg in msgs:
+					m = Message.parse(msg)
+					thread = threading.Thread(target=lambda: None)
+					logging.debug("(%s) handler thread %s [%s]",
+						threading.current_thread().name, thread.name, m.command)
+					thread.start()
+			except socket.error:
+				logging.info("Disconnected from server")
+				break

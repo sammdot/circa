@@ -23,3 +23,5 @@ class Channel:
 	def __contains__(self, nick):
 		return nick in self.users
 
+class ChannelList(dict):
+	pass

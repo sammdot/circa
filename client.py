@@ -109,4 +109,6 @@ class Client:
 					thread.start()
 			except socket.error:
 				logging.info("Disconnected from server")
+				self.sock.close()
+				self.sock = None
 				break

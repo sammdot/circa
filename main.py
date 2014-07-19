@@ -106,4 +106,7 @@ if __name__ == "__main__":
 			threading.Thread(target=lambda: Circa(**c)).start()
 	except KeyboardInterrupt:
 		print("Bye")
+<<<<<<< HEAD
 
+=======
+>>>>>>> ed74ba7... oops

@@ -52,3 +52,41 @@ class Client:
 			logging.error("Cannot connect to %s: %s", self.conf["server"], e)
 			self.sock.close()
 			self.sock = None
+	
+	def send(self, *msg):
+		"""Send a raw message to the server."""
+
+		if not self.sock:
+			logging.error("Not connected to server")
+			return
+
+		message = " ".join(map(str, msg[:-1])) + " :" + str(msg[-1])
+		self.sock.sendall(bytes(message + "\r\n", "utf-8"))
+		logging.debug("(%s) %s", threading.current_thread().name, message.rstrip())
+	
+	def say(self, to, msg):
+		"""Send a message to a user/channel."""
+		self.send("PRIVMSG", to, msg)
+	
+	def notice(self, to, msg):
+		"""Send a notice to a user/channel."""
+		self.send("NOTICE", to, msg)
+	
+	def ctcp_say(self, to, text):
+		"""Send a CTCP PRIVMSG message."""
+		self.say(to, "\x01{0}\x01".format(text))
+	
+	def ctcp_notice(self, to, text):
+		"""Send a CTCP NOTICE message."""
+		self.notice(to, "\x01{0}\x01".format(text))
+	
+	def action(self, to, msg):
+		self.ctcp_say(to, "ACTION {0}".format(msg))
+	
+	def join(self, chan):
+		"""Join a channel."""
+		self.send("JOIN", chan)
+	
+	def part(self, chan, reason=None):
+		self.send("PART", chan, reason or "")
+	

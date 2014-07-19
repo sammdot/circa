@@ -1,3 +1,4 @@
+import logging
 import re
 import socket
 import threading
@@ -32,3 +33,22 @@ class Client:
 		self.listeners = {}
 
 		self.nickmod = 0
+
+		if self.conf["autoconn"]:
+			threading.Thread(target=self.connect).start()
+	
+	def connect(self):
+		"""Attempt to connect to the server. Log in if successful."""
+
+		self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+
+		try:
+			self.sock.connect((self.conf["server"], self.conf["port"]))
+			self.server = Server(self.conf["server"], self.conf["port"])
+			logging.info("Connected to %s", self.server.host)
+
+			threading.Thread(name="listen", target=lambda: None).start()
+		except socket.error as e:
+			logging.error("Cannot connect to %s: %s", self.conf["server"], e)
+			self.sock.close()
+			self.sock = None

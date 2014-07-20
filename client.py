@@ -35,7 +35,7 @@ class Client:
 		self.nickmod = 0
 
 		if self.conf["autoconn"]:
-			threading.Thread(target=self.connect).start()
+			threading.Thread(name="main", target=self.connect).start()
 	
 	def connect(self):
 		"""Attempt to connect to the server. Log in if successful."""

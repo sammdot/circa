@@ -112,3 +112,22 @@ class Client:
 				self.sock.close()
 				self.sock = None
 				break
+	
+	def add_listener(self, event, fn):
+		"""Add a function to listen for the specified event."""
+		if event not in self.listeners:
+			self.listeners[event] = []
+		self.listeners[event].append(fn)
+	
+	def remove_listener(self, event, fn):
+		"""Remove a function as a listener from the specified event."""
+		if event not in self.listeners:
+			return
+		self.listeners[event] = [l for l in self.listeners[event] if l != fn]
+	
+	def remove_listeners(self, event):
+		"""Remove all functions listening for the specified event."""
+		if event nto in self.listeners:
+			return
+		self.listeners.pop(event)
+

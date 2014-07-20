@@ -127,7 +127,7 @@ class Client:
 	
 	def remove_listeners(self, event):
 		"""Remove all functions listening for the specified event."""
-		if event nto in self.listeners:
+		if event not in self.listeners:
 			return
 		self.listeners.pop(event)
 

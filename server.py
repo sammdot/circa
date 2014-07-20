@@ -16,7 +16,7 @@ class Server:
 		self.idlength = {}
 		self.chlength = 200
 		self.chlimit = {}
-		self.chmods = {x: set() for x in "abcd"}
+		self.chmodes = {x: set() for x in "abcd"}
 		self.types = set()
 
 		self.prefix_mode = {}

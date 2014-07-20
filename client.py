@@ -51,7 +51,7 @@ class Client:
 			self.send("USER", self.conf["username"], 8, "*", \
 				self.conf["realname"])
 
-			threading.Thread(name="listen", target=lambda: self.listen).start()
+			threading.Thread(name="listen", target=self.listen).start()
 		except socket.error as e:
 			logging.error("Cannot connect to %s: %s", self.conf["server"], e)
 			self.sock.close()

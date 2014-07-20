@@ -47,7 +47,7 @@ class Client:
 			self.server = Server(self.conf["server"], self.conf["port"])
 			logging.info("Connected to %s", self.server.host)
 
-			threading.Thread(name="listen", target=lambda: None).start()
+			threading.Thread(name="listen", target=lambda: self.listen).start()
 		except socket.error as e:
 			logging.error("Cannot connect to %s: %s", self.conf["server"], e)
 			self.sock.close()
@@ -103,7 +103,7 @@ class Client:
 				*msgs, buf = buf.split("\r\n")
 				for msg in msgs:
 					m = Message.parse(msg)
-					thread = threading.Thread(target=lambda: None)
+					thread = threading.Thread(target=lambda: self.handle(m))
 					logging.debug("(%s) handler thread %s [%s]",
 						threading.current_thread().name, thread.name, m.command)
 					thread.start()

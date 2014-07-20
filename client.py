@@ -47,6 +47,10 @@ class Client:
 			self.server = Server(self.conf["server"], self.conf["port"])
 			logging.info("Connected to %s", self.server.host)
 
+			self.send("NICK", self.conf["nick"])
+			self.send("USER", self.conf["username"], 8, "*", \
+				self.conf["realname"])
+
 			threading.Thread(name="listen", target=lambda: self.listen).start()
 		except socket.error as e:
 			logging.error("Cannot connect to %s: %s", self.conf["server"], e)

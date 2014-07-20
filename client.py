@@ -130,4 +130,18 @@ class Client:
 		if event not in self.listeners:
 			return
 		self.listeners.pop(event)
+	
+	def emit(self, event, *params):
+		"""Emit an event, and call all functions listening for it."""
+		if event in self.listeners:
+			for listener in self.listeners[event]:
+				try:
+					thread = threading.Thread(target=lambda: listener(*params))
+					logging.debug("(%s) worker thread %s [%s, %s]",
+						threading.current_thread().name, thread.name, event,
+						listener.__name__)
+					thread.start()
+				except TypeError as e:
+					logging.error("(%s) invalid number of parameters [%s]",
+						threading.current_thread().name, listener.__name__)
 

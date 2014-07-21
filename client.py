@@ -109,7 +109,7 @@ class Client:
 					m = Message.parse(msg)
 					thread = threading.Thread(target=lambda: self.handle(m))
 					logging.debug("(%s) handler thread %s [%s]",
-						threading.current_thread().name, thread.name, m.command)
+						threading.current_thread().name, thread.name, m.raw)
 					thread.start()
 			except socket.error:
 				logging.info("Disconnected from server")

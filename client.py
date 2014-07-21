@@ -231,7 +231,7 @@ class Client:
 				self.nick = nick
 			chans = [i.name for i in filter(lambda c: msg.nick in c, \
 				self.channels.values())]
-			for chan in self.channels.values():
+			for chan in chans:
 				chan.users[nick] = chan.users[msg.nick]
 				chan.users.pop(nick)
 			self.emit("nick", msg.nick, nick, chans)

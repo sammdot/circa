@@ -324,6 +324,6 @@ class Client:
 			channels = []
 			for chan in self.channels:
 				if msg.nick in self.channels[chan]:
-					channels.append(chan.name)
+					channels.append(self.channels[chan].name)
 					self.channels[chan].users.pop(msg.nick)
 			self.emit("quit", msg.nick, msg.params[0], channels)

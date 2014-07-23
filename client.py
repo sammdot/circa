@@ -321,9 +321,10 @@ class Client:
 		elif c == "QUIT":
 			if self.nick == msg.nick:
 				return
-			channels = []
-			for chan in self.channels:
-				if msg.nick in self.channels[chan]:
-					channels.append(self.channels[chan].name)
-					self.channels[chan].users.pop(msg.nick)
-			self.emit("quit", msg.nick, msg.params[0], channels)
+			nick = msg.params[0]
+			if msg.nick == self.nick:
+				self.nick = nick
+			chans = list(filter(lambda c: msg.nick in c, self.channels.values()))
+			for chan in chans:
+				chan.users.pop(nick)
+			self.emit("quit", msg.nick, nick, [c.name for c in chans])

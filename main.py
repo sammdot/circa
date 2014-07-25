@@ -66,8 +66,6 @@ def main():
 	if args["-P"] and "password" not in conf:
 		conf["password"] = getpass.getpass()
 
-	print(conf)
-
 	c = Circa(conf)
 	c.connect()
 

@@ -15,7 +15,7 @@ class Circa(client.Client):
 
 		logging.info("Registering callbacks")
 		self.add_listener("registered", self.registered)
-		self.add_listener("invite", self.join)
+		self.add_listener("invite", self.invited)
 
 	def registered(self, nick):
 		self.send("UMODE2", "+B")
@@ -24,6 +24,9 @@ class Circa(client.Client):
 					str(self.conf["password"])))
 		for chan in self.conf["channels"]:
 			self.join("#" + chan)
+
+	def invited(self, chan, by):
+		self.join(chan)
 
 	def close(self):
 		self.send("QUIT")

@@ -21,6 +21,7 @@ Options:
 __version__ = 1.0
 
 import docopt
+import getpass
 import logging
 import signal
 import sys
@@ -61,6 +62,9 @@ def main():
 	logging.basicConfig(filename=conf["log"],
 		level=logging.DEBUG if conf["verbose"] else logging.INFO,
 		style="%", format="%(asctime)s %(levelname)s %(message)s")
+
+	if args["-P"] and "password" not in conf:
+		conf["password"] = getpass.getpass()
 
 	print(conf)
 

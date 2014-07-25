@@ -296,9 +296,9 @@ class Client:
 			chan, who, reason, *rest = msg.params
 			self.emit("kick", chan, who, msg.nick, reason)
 			if self.nick == msg.nick:
-				self.channels.pop(chan)
+				self.channels.pop(chan[1:])
 			else:
-				channel = self.channels[chan]
+				channel = self.channels[chan[1:]]
 				if channel:
 					channel.users.pop(who)
 		elif c == "KILL":

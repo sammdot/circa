@@ -13,6 +13,4 @@ class Circa(client.Client):
 				logging.info("See %s for details", conf.get("log", "circa.log"))
 				exit(1)
 
-		if "log" in conf:
-			logging.basicConfig(filename=conf["log"])
 		client.Client.__init__(self, **conf)

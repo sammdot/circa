@@ -17,6 +17,8 @@ class Circa(client.Client):
 		self.add_listener("registered", self.registered)
 		self.add_listener("invite", self.invited)
 
+		self.connect()
+
 	def registered(self, nick):
 		self.send("UMODE2", "+B")
 		if "password" in self.conf:

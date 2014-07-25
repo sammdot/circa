@@ -51,8 +51,7 @@ def main():
 		"realname": args["-r"],
 		"log": args["-l"],
 		"prefix": args["-c"],
-		"verbose": args["-v"],
-		"autoconn": False
+		"verbose": args["-v"]
 	}
 
 	if args["CONFIG"]:
@@ -66,8 +65,7 @@ def main():
 	if args["-P"] and "password" not in conf:
 		conf["password"] = getpass.getpass()
 
-	c = Circa(conf)
-	c.connect()
+	circa = Circa(conf)
 
 if __name__ == "__main__":
 	main()

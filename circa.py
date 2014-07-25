@@ -4,14 +4,11 @@ import client
 class Circa(client.Client):
 	def __init__(self, conf):
 		conf["autoconn"] = False
-		logging.basicConfig(filename=conf.get("log", "circa.log"),
-			level=logging.DEBUG, style="%",
-			format="%(asctime)s %(levelname)s %(message)s")
 
 		for setting in "server nick username realname".split():
-			if setting not in conf:
+			if setting not in conf or conf[setting] is None:
 				logging.error("Required setting %s not present", setting)
-				logging.info("See %s for details", conf.get("log", "circa.log"))
+				logging.info("See %s for details", conf["log"])
 				exit(1)
 
 		client.Client.__init__(self, **conf)
@@ -27,3 +24,8 @@ class Circa(client.Client):
 					str(self.conf["password"])))
 		for chan in self.conf["channels"]:
 			self.join("#" + chan)
+
+	def close(self):
+		self.send("QUIT")
+		self.sock.close()
+		self.sock = None

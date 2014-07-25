@@ -40,7 +40,7 @@ def sig(*args):
 signal.signal(signal.SIGINT, sig)
 signal.signal(signal.SIGTERM, sig)
 
-def main():
+def parse_args():
 	args = docopt.docopt(__doc__, version=__version__)
 
 	conf = {
@@ -65,7 +65,8 @@ def main():
 	if args["-P"] and "password" not in conf:
 		conf["password"] = getpass.getpass()
 
-	circa = Circa(conf)
+	return conf
 
 if __name__ == "__main__":
-	main()
+	conf = parse_args()
+	circa = Circa(conf)

@@ -1,5 +1,7 @@
 import logging
 import client
+import importlib
+import modules
 
 class Circa(client.Client):
 	def __init__(self, conf):
@@ -33,3 +35,26 @@ class Circa(client.Client):
 	def close(self):
 		self.send("QUIT")
 		self.sock.close()
+
+	def load_module(self, name):
+		if name in self.modules:
+			importlib.reload(self.modules[name])
+			return 0
+		try:
+			m = importlib.import_module("modules." + name).module
+			if hasattr(m, "require"):
+				for mod in m.require.split():
+					self.load_module(mod)
+			self.modules[name] = module = m(self)
+			m.onload()
+			return 0
+		except (ImportError, AttributeError, TypeError):
+			return 1
+
+	def unload_module(self, name):
+		if name not in self.modules:
+			return
+		m = self.modules[name]
+		importlib.reload(m)
+		m.onunload()
+		del m

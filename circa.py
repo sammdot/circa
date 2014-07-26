@@ -39,10 +39,7 @@ class Circa(client.Client):
 
 	def load_module(self, name):
 		if name in self.modules:
-			importlib.reload(sys.modules[name])
-			self.modules[name] = module = sys.modules[name].module(self)
-			module.onload()
-			return 0
+			return False
 		try:
 			m = importlib.import_module("modules." + name).module
 			if hasattr(m, "require"):
@@ -50,9 +47,9 @@ class Circa(client.Client):
 					self.load_module(mod)
 			self.modules[name] = module = m(self)
 			module.onload()
-			return 0
+			return True
 		except (ImportError, AttributeError, TypeError):
-			return 1
+			return False
 
 	def unload_module(self, name):
 		if name not in self.modules:

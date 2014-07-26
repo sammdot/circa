@@ -64,18 +64,17 @@ class Client:
 			logging.error("Not connected to server")
 			return
 
-		message = (" ".join(map(str, msg[:-1])) + " :" + str(msg[-1])) \
-			if len(msg) > 1 else " ".join(map(str, msg))
+		message = " ".join(map(str, msg))
 		self.sock.sendall(bytes(message + "\r\n", "utf-8"))
 		logging.debug("(%s) %s", threading.current_thread().name, message.rstrip())
 	
 	def say(self, to, msg):
 		"""Send a message to a user/channel."""
-		self.send("PRIVMSG", to, msg)
+		self.send("PRIVMSG", to, ":" + msg)
 	
 	def notice(self, to, msg):
 		"""Send a notice to a user/channel."""
-		self.send("NOTICE", to, msg)
+		self.send("NOTICE", to, ":" + msg)
 	
 	def ctcp_say(self, to, text):
 		"""Send a CTCP PRIVMSG message."""
@@ -93,7 +92,7 @@ class Client:
 		self.send("JOIN", chan)
 	
 	def part(self, chan, reason=None):
-		self.send("PART", chan, reason or "")
+		self.send("PART", chan, ":" + (reason or ""))
 
 	def listen(self):
 		"""Listen for incoming messages from the IRC server."""

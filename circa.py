@@ -33,4 +33,3 @@ class Circa(client.Client):
 	def close(self):
 		self.send("QUIT")
 		self.sock.close()
-		self.sock = None

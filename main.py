@@ -35,7 +35,7 @@ def sig(*args):
 	if circa:
 		circa.close()
 	logging.info("Exiting.")
-	exit(0)
+	print()
 
 signal.signal(signal.SIGINT, sig)
 signal.signal(signal.SIGTERM, sig)

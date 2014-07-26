@@ -2,6 +2,7 @@ import logging
 import client
 import importlib
 import modules
+import sys
 
 class Circa(client.Client):
 	def __init__(self, conf):
@@ -38,7 +39,9 @@ class Circa(client.Client):
 
 	def load_module(self, name):
 		if name in self.modules:
-			importlib.reload(self.modules[name])
+			importlib.reload(sys.modules[name])
+			self.modules[name] = module = sys.modules[name].module(self)
+			module.onload()
 			return 0
 		try:
 			m = importlib.import_module("modules." + name).module
@@ -46,7 +49,7 @@ class Circa(client.Client):
 				for mod in m.require.split():
 					self.load_module(mod)
 			self.modules[name] = module = m(self)
-			m.onload()
+			module.onload()
 			return 0
 		except (ImportError, AttributeError, TypeError):
 			return 1
@@ -54,7 +57,5 @@ class Circa(client.Client):
 	def unload_module(self, name):
 		if name not in self.modules:
 			return
-		m = self.modules[name]
-		importlib.reload(m)
-		m.onunload()
-		del m
+		self.modules[name].onunload()
+		del sys.modules[name]

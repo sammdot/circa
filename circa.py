@@ -5,6 +5,8 @@ import modules
 import sys
 
 class Circa(client.Client):
+	modules = {}
+
 	def __init__(self, conf):
 		conf["autoconn"] = False
 
@@ -19,6 +21,8 @@ class Circa(client.Client):
 		logging.info("Registering callbacks")
 		self.add_listener("registered", self.registered)
 		self.add_listener("invite", self.invited)
+
+		self.load_module("cmd")
 
 		self.connect()
 

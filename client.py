@@ -65,7 +65,7 @@ class Client:
 			return
 
 		message = (" ".join(map(str, msg[:-1])) + " :" + str(msg[-1])) \
-			if len(msg) > 1 else msg
+			if len(msg) > 1 else " ".join(map(str, msg))
 		self.sock.sendall(bytes(message + "\r\n", "utf-8"))
 		logging.debug("(%s) %s", threading.current_thread().name, message.rstrip())
 	

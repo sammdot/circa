@@ -1,4 +1,4 @@
-from util import nickeq, nicklower
+from util.nick import nickeq, nicklower
 
 class NickDict(dict):
 	def __setitem__(self, nick, value):

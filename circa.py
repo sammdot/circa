@@ -4,7 +4,7 @@ import importlib
 import modules
 import sys
 
-from util import nicklower
+from util.nick import nicklower
 
 class Circa(client.Client):
 	modules = {}

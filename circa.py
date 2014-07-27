@@ -76,4 +76,4 @@ class Circa(client.Client):
 		if name not in self.modules:
 			return
 		self.modules[name].onunload()
-		del sys.modules[name]
+		del sys.modules["modules." + name]

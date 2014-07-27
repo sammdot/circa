@@ -27,6 +27,7 @@ class Circa(client.Client):
 		self.add_listener("invite", self.invited)
 
 		logging.info("Loading modules")
+		sys.path.append(self.cwd)
 		self.load_module("cmd")
 
 		self.connect()
@@ -60,8 +61,13 @@ class Circa(client.Client):
 					self.load_module(mod)
 			self.modules[name] = module = m(self)
 			module.onload()
+			logging.info("Loaded {0}".format(name))
 			return True
-		except (ImportError, AttributeError, TypeError):
+		except ImportError as e:
+			logging.error("Cannot import module {0}: {1}".format(name, e))
+			return False
+		except Exception as e:
+			logging.error("Cannot load module {0}: {1}".format(name, e))
 			return False
 
 	def unload_module(self, name):

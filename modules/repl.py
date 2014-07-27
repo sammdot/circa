@@ -29,6 +29,8 @@ class Repl(code.InteractiveConsole):
 		type, value, lasttb = sys.exc_info()
 		self.circa.say(self.channel, "\x02\x034{0}\x03\x02: {1}".format( \
 			type.__name__, value))
+	
+	showsyntaxerror = showtraceback
 
 class ReplModule:
 	def __init__(self, circa):

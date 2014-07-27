@@ -52,9 +52,6 @@ class ReplModule:
 		if self.circa.is_admin(fr):
 			if to not in self.repls:
 				self.repls[to] = Repl(self.circa, to)
-			try:
-				self.repls[to].run(command)
-			except Exception as e:
-				print(e)
+			self.repls[to].run(command)
 
 module = ReplModule

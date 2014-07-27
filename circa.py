@@ -16,6 +16,8 @@ class Circa(client.Client):
 				logging.info("See %s for details", conf["log"])
 				exit(1)
 
+		self.cwd = conf["cwd"]
+
 		client.Client.__init__(self, **conf)
 
 		logging.info("Registering callbacks")

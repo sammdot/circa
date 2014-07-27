@@ -23,6 +23,7 @@ __version__ = 1.0
 import docopt
 import getpass
 import logging
+import pathlib
 import signal
 import sys
 import yaml
@@ -44,6 +45,7 @@ def parse_args():
 	args = docopt.docopt(__doc__, version=__version__)
 
 	conf = {
+		"cwd": pathlib.Path(sys.argv[0]).resolve().parent,
 		"server": args["-s"],
 		"port": int(args["-p"]),
 		"nick": args["-n"],

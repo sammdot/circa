@@ -34,6 +34,10 @@ class Circa(client.Client):
 
 		self.connect()
 
+	def say(self, to, msg):
+		for line in msg.splitlines():
+			client.Client.say(self, to, line)
+
 	def registered(self, nick):
 		self.send("UMODE2", "+B")
 		if "password" in self.conf:

@@ -10,6 +10,9 @@ class NickDict(dict):
 	def __contains__(self, nick):
 		return dict.__contains__(self, nicklower(nick))
 
+	def pop(self, nick):
+		return dict.pop(self, nicklower(nick))
+
 class Channel:
 	def __init__(self, name):
 		self.name = name

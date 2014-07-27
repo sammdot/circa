@@ -46,6 +46,9 @@ class Circa(client.Client):
 		self.send("QUIT")
 		self.sock.close()
 
+	def is_admin(self, nick):
+		return nicklower(nick) in self.server.admins
+
 	def load_module(self, name):
 		if name in self.modules:
 			return False

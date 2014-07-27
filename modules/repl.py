@@ -27,8 +27,6 @@ class Repl(code.InteractiveConsole):
 
 class ReplModule:
 	def __init__(self, circa):
-		import logging
-		logging.info("Loading repl")
 		self.circa = circa
 		self.repls = {}
 

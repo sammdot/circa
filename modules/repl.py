@@ -25,6 +25,11 @@ class Repl(code.InteractiveConsole):
 		sys.stdout = sys.__stdout__
 		self.flush()
 
+	def showtraceback(self):
+		type, value, lasttb = sys.exc_info()
+		self.circa.say(self.channel, "\x02\x034{0}\x03\x02: {1}".format( \
+			type.__name__, value))
+
 class ReplModule:
 	def __init__(self, circa):
 		self.circa = circa
@@ -45,6 +50,9 @@ class ReplModule:
 		if self.circa.is_admin(fr):
 			if to not in self.repls:
 				self.repls[to] = Repl(self.circa, to)
-			self.repls[to].run(command)
+			try:
+				self.repls[to].run(command)
+			except Exception as e:
+				print(e)
 
 module = ReplModule

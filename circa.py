@@ -21,12 +21,12 @@ class Circa(client.Client):
 		self.cwd = conf["cwd"]
 
 		client.Client.__init__(self, **conf)
-		self.server.admins = set(map(nicklower, conf["admins"]))
 
 		logging.info("Registering callbacks")
 		self.add_listener("registered", self.registered)
 		self.add_listener("invite", self.invited)
 
+		logging.info("Loading modules")
 		self.load_module("cmd")
 
 		self.connect()
@@ -38,6 +38,7 @@ class Circa(client.Client):
 					str(self.conf["password"])))
 		for chan in self.conf["channels"]:
 			self.join("#" + chan)
+		self.server.admins = set(map(nicklower, self.conf["admins"]))
 
 	def invited(self, chan, by):
 		self.join(chan)

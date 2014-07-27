@@ -4,13 +4,15 @@ import importlib
 import modules
 import sys
 
+from util import nicklower
+
 class Circa(client.Client):
 	modules = {}
 
 	def __init__(self, conf):
 		conf["autoconn"] = False
 
-		for setting in "server nick username realname".split():
+		for setting in "server nick username realname admins".split():
 			if setting not in conf or conf[setting] is None:
 				logging.error("Required setting %s not present", setting)
 				logging.info("See %s for details", conf["log"])
@@ -19,6 +21,7 @@ class Circa(client.Client):
 		self.cwd = conf["cwd"]
 
 		client.Client.__init__(self, **conf)
+		self.server.admins = set(map(nicklower, conf["admins"]))
 
 		logging.info("Registering callbacks")
 		self.add_listener("registered", self.registered)

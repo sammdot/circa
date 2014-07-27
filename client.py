@@ -232,7 +232,7 @@ class Client:
 			chans = list(filter(lambda c: msg.nick in c, self.channels.values()))
 			for chan in chans:
 				chan.users[nick] = chan.users[msg.nick]
-				chan.users.pop(nick)
+				chan.users.pop(msg.nick)
 			self.emit("nick", msg.nick, nick, [c.name for c in chans])
 		elif c == "375":
 			self.server.motd = msg.params[1] + "\n"

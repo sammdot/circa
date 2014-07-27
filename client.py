@@ -287,7 +287,7 @@ class Client:
 			chan = msg.params[0]
 			self.emit("part", chan, msg.nick)
 			if self.nick == msg.nick:
-				self.channels.pop(chan)
+				self.channels.pop(chan[1:])
 			else:
 				channel = self.channels[chan]
 				if channel:

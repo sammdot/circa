@@ -29,6 +29,7 @@ class Circa(client.Client):
 		logging.info("Loading modules")
 		sys.path.append(self.cwd)
 		self.load_module("cmd")
+		self.load_module("leave")
 		for module in conf["modules"]:
 			self.load_module(module)
 

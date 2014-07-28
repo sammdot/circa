@@ -21,3 +21,5 @@ class Server:
 
 		self.prefix_mode = {}
 		self.mode_prefix = {}
+
+		self.admins = set()

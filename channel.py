@@ -1,4 +1,4 @@
-from util import nickeq, nicklower
+from util.nick import nickeq, nicklower
 
 class NickDict(dict):
 	def __setitem__(self, nick, value):
@@ -9,6 +9,9 @@ class NickDict(dict):
 	
 	def __contains__(self, nick):
 		return dict.__contains__(self, nicklower(nick))
+
+	def pop(self, nick):
+		return dict.pop(self, nicklower(nick))
 
 class Channel:
 	def __init__(self, name):

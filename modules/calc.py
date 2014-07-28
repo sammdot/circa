@@ -16,11 +16,11 @@ class CalcModule:
 		self.circa.remove_listener("cmd.dc!", self.dc1)
 		self.circa.remove_listener("cmd.bc", self.bc)
 	
-	def dc(self, to, expr):
+	def dc(self, fr, to, expr):
 		expr = re.sub(r"-([0-9])", r"_\1", expr)
-		self.dc1(to, expr + " p")
+		self.dc1(fr, to, expr + " p")
 
-	def dc1(self, to, expr):
+	def dc1(self, fr, to, expr):
 		if to not in self.contexts:
 			self.contexts[to] = None
 		expr = re.sub(r"\b_\b", str(self.contexts[to]), expr)
@@ -29,7 +29,7 @@ class CalcModule:
 			input=bytes(expr, "utf-8"), stderr=subprocess.STDOUT), "utf-8")
 		self.circa.say(to, str(self.contexts[to]))
 
-	def bc(self, to, expr):
+	def bc(self, fr, to, expr):
 		if to not in self.contexts:
 			self.contexts[to] = None
 		expr = re.sub(r"\b_\b", str(self.contexts[to]), expr) + ";\n"

@@ -289,7 +289,7 @@ class Client:
 			if self.nick == msg.nick:
 				self.channels.pop(chan[1:])
 			else:
-				channel = self.channels[chan]
+				channel = self.channels[chan[1:]]
 				if channel:
 					del channel.users[msg.nick]
 		elif c == "KICK":

@@ -12,7 +12,7 @@ class CommandModule:
 		if text.startswith(self.circa.conf["prefix"]):
 			cmd = text.split(" ")[0]
 			cmdname = "$" if cmd == self.circa.conf["prefix"] else cmd[1:]
-			self.circa.emit("cmd." + cmdname, fr if to == self.circa.nick else to,
+			self.circa.emit("cmd." + cmdname, fr, fr if to == self.circa.nick else to,
 				" ".join(text.split(" ")[1:]))
 
 module = CommandModule

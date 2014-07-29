@@ -290,7 +290,7 @@ class Client:
 			else:
 				channel = self.channels[chan[1:]]
 				if channel:
-					channel.users[msg.nick] = User(nicklower(nick))
+					channel.users[msg.nick] = User(nicklower(msg.nick))
 			self.emit("join", chan, nicklower(msg.nick))
 		elif c == "PART":
 			chan = msg.params[0]
@@ -328,7 +328,7 @@ class Client:
 		elif c == "INVITE":
 			self.emit("invite", msg.params[1], nicklower(msg.nick))
 		elif c == "QUIT":
-			if nickeq(self.nick, msg.nick):
+			if nicklower(self.nick, msg.nick):
 				return
 			chans = list(filter(lambda c: msg.nick in c, self.channels.values()))
 			for chan in chans:

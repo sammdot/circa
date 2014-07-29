@@ -20,13 +20,13 @@ class NickDict(dict):
 		return dict.pop(self, nicklower(nick))
 
 	def __getattr__(self, attr):
-		return self[attr] if attr in self else dict.__getattr__(self, attr)
+		if attr in self:
+			return self[attr]
+		else:
+			raise KeyError(attr)
 
 	def __setattr__(self, attr, val):
-		if attr in self:
-			self[attr] = val
-		else:
-			dict.__setattr__(self, attr, val)
+		self[attr] = val
 
 class Channel:
 	def __init__(self, name):
@@ -42,10 +42,21 @@ class Channel:
 		return nick in self.users
 
 class ChannelList(dict):
+	def __setitem__(self, chan, val):
+		dict.__setitem__(self, chan.lower(), val)
+
+	def __getitem__(self, chan):
+		return dict.__getitem__(self, chan.lower())
+
+	def __contains__(self, chan):
+		return dict.__contains__(self, chan.lower())
+
 	def __getattr__(self, attr):
-		return self[attr] if attr in self else None
+		if attr in self:
+			return self[attr]
+		else:
+			raise KeyError(attr)
 
 	def __setattr__(self, attr, val):
-		if attr in self:
-			self[attr] = val
+		self[attr] = val
 

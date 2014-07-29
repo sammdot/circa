@@ -328,7 +328,7 @@ class Client:
 		elif c == "INVITE":
 			self.emit("invite", msg.params[1], nicklower(msg.nick))
 		elif c == "QUIT":
-			if nicklower(self.nick, msg.nick):
+			if nickeq(self.nick, msg.nick):
 				return
 			chans = list(filter(lambda c: msg.nick in c, self.channels.values()))
 			for chan in chans:

@@ -6,6 +6,9 @@ class User:
 		self.registered = registered
 		self.mode = set(mode) if mode else set()
 
+	def __repr__(self):
+		return "User({0})".format(self.nick)
+
 class NickDict(dict):
 	def __setitem__(self, nick, value):
 		dict.__setitem__(self, nicklower(nick), value)

@@ -19,6 +19,15 @@ class NickDict(dict):
 	def pop(self, nick):
 		return dict.pop(self, nicklower(nick))
 
+	def __getattr__(self, attr):
+		return self[attr] if attr in self else dict.__getattr__(self, attr)
+
+	def __setattr__(self, attr, val):
+		if attr in self:
+			self[attr] = val
+		else:
+			dict.__setattr__(self, attr, val)
+
 class Channel:
 	def __init__(self, name):
 		self.name = name
@@ -33,4 +42,10 @@ class Channel:
 		return nick in self.users
 
 class ChannelList(dict):
-	pass
+	def __getattr__(self, attr):
+		return self[attr] if attr in self else None
+
+	def __setattr__(self, attr, val):
+		if attr in self:
+			self[attr] = val
+

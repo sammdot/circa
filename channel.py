@@ -1,5 +1,11 @@
 from util.nick import nickeq, nicklower
 
+class User:
+	def __init__(self, nick, mode=None, registered=False):
+		self.nick = nicklower(nick)
+		self.registered = registered
+		self.mode = set(mode) if mode else set()
+
 class NickDict(dict):
 	def __setitem__(self, nick, value):
 		dict.__setitem__(self, nicklower(nick), value)

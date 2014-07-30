@@ -23,3 +23,6 @@ class Server:
 		self.mode_prefix = {}
 
 		self.admins = set()
+
+	def __repr__(self):
+		return "Server({0})".format(self.host)

@@ -3,9 +3,10 @@ import re
 import socket
 import threading
 
-from channel import Channel, ChannelList
+from channel import Channel, ChannelList, User
 from message import Message
 from server  import Server
+from util.nick import nickeq, nicklower
 
 class Client:
 	def __init__(self, server, nick, username, realname, **conf):
@@ -36,6 +37,9 @@ class Client:
 
 		if self.conf["autoconn"]:
 			threading.Thread(name="main", target=self.connect).start()
+
+	def __repr__(self):
+		return "Circa({0})".format(self.server.host)
 	
 	def connect(self):
 		"""Attempt to connect to the server. Log in if successful."""
@@ -227,12 +231,13 @@ class Client:
 			pass # TODO
 		elif c == "NICK":
 			nick = msg.params[0]
-			if msg.nick == self.nick:
-				self.nick = nick
+			if nickeq(msg.nick, self.nick):
+				self.nick = nicklower(nick)
 			chans = list(filter(lambda c: msg.nick in c, self.channels.values()))
 			for chan in chans:
 				chan.users[nick] = chan.users[msg.nick]
 				chan.users.pop(msg.nick)
+				chan.users[nick].nick = nicklower(nick)
 			self.emit("nick", msg.nick, nick, [c.name for c in chans])
 		elif c == "375":
 			self.server.motd = msg.params[1] + "\n"
@@ -246,10 +251,13 @@ class Client:
 			if channel:
 				users = msg.params[3].strip().split()
 				for user in users:
+					nick = nicklower(user)
 					if user[0] in self.server.prefix_mode:
-						channel.users[user[1:]] = user[0]
+						nick = nick[1:]
+						channel.users[nick] = User(nick,
+							{self.server.prefix_mode[user[0]]})
 					else:
-						channel.users[user] = ""
+						channel.users[user] = User(nick)
 		elif c == "366":
 			channel = self.channels[msg.params[1][1:]]
 			if channel:
@@ -261,11 +269,12 @@ class Client:
 				channel.topic = msg.params[2]
 		# 301, 311, 312, 313, 317, 318, 319, 330, 321, 322, 323, 333
 		elif c == "TOPIC":
-			self.emit("topic", msg.params[0], msg.params[1], msg.nick, msg)
+			nick = nicklower(msg.nick)
+			self.emit("topic", msg.params[0], msg.params[1], nick, msg)
 			channel = self.channels[msg.params[0][1:]]
 			if channel:
 				channel.topic = msg.params[1]
-				channel.topicby = msg.nick
+				channel.topicby = nick
 		elif c == "324":
 			channel = self.channels[msg.params[1][1:]]
 			if channel:
@@ -276,40 +285,40 @@ class Client:
 				channel.created = int(msg.params[2])
 		elif c == "JOIN":
 			chan = msg.params[0]
-			if self.nick == msg.nick:
+			if nickeq(self.nick, msg.nick):
 				self.channels[chan[1:]] = Channel(chan)
 			else:
 				channel = self.channels[chan[1:]]
 				if channel:
-					channel.users[msg.nick] = ""
-			self.emit("join", chan, msg.nick)
+					channel.users[msg.nick] = User(nicklower(msg.nick))
+			self.emit("join", chan, nicklower(msg.nick))
 		elif c == "PART":
 			chan = msg.params[0]
-			self.emit("part", chan, msg.nick)
-			if self.nick == msg.nick:
+			self.emit("part", chan, nicklower(msg.nick))
+			if nickeq(self.nick, msg.nick):
 				self.channels.pop(chan[1:])
 			else:
 				channel = self.channels[chan[1:]]
 				if channel:
-					del channel.users[msg.nick]
+					channel.users.pop(msg.nick)
 		elif c == "KICK":
 			chan, who, reason, *rest = msg.params
-			self.emit("kick", chan, who, msg.nick, reason)
-			if self.nick == msg.nick:
+			self.emit("kick", chan, who, nicklower(msg.nick), reason)
+			if nickeq(self.nick, msg.nick):
 				self.channels.pop(chan[1:])
 			else:
 				channel = self.channels[chan[1:]]
 				if channel:
 					channel.users.pop(who)
 		elif c == "KILL":
-			nick = msg.params[0]
+			nick = nicklower(msg.params[0])
 			channels = []
 			for chan in self.channels:
 				channels.append(chan.name)
 				chan.users.pop(nick)
 			self.emit("kill", nick, msg.params[1], channels)
 		elif c == "PRIVMSG":
-			fr, to = msg.nick, msg.params[0]
+			fr, to = nicklower(msg.nick), nicklower(msg.params[0])
 			text = " ".join(msg.params[1:])
 			if text[0] == "\x01" and "\x01" in text[1:]:
 				self._ctcp(fr, to, text, "privmsg")
@@ -317,13 +326,11 @@ class Client:
 				self.emit("message", fr, to, text)
 			self.emit("pm", fr, text, msg)
 		elif c == "INVITE":
-			self.emit("invite", msg.params[1], msg.nick)
+			self.emit("invite", msg.params[1], nicklower(msg.nick))
 		elif c == "QUIT":
-			if self.nick == msg.nick:
+			if nickeq(self.nick, msg.nick):
 				return
-			if msg.nick == self.nick:
-				self.nick = nick
 			chans = list(filter(lambda c: msg.nick in c, self.channels.values()))
 			for chan in chans:
 				chan.users.pop(msg.nick)
-			self.emit("quit", msg.nick, [c.name for c in chans])
+			self.emit("quit", nicklower(msg.nick), [c.name for c in chans])

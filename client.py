@@ -296,7 +296,7 @@ class Client:
 			chan = msg.params[0]
 			self.emit("part", chan, nicklower(msg.nick))
 			if nickeq(self.nick, msg.nick):
-				self.channels.pop(chan[1:])
+				self.channels.pop(chan[1:].lower())
 			else:
 				channel = self.channels[chan[1:]]
 				if channel:
@@ -305,7 +305,7 @@ class Client:
 			chan, who, reason, *rest = msg.params
 			self.emit("kick", chan, who, nicklower(msg.nick), reason)
 			if nickeq(self.nick, msg.nick):
-				self.channels.pop(chan[1:])
+				self.channels.pop(chan[1:].lower())
 			else:
 				channel = self.channels[chan[1:]]
 				if channel:

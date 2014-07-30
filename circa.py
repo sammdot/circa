@@ -21,10 +21,13 @@ class Circa(client.Client):
 		self.cwd = conf["cwd"]
 
 		client.Client.__init__(self, **conf)
+		self.conf["admins"] = set(map(nicklower, self.conf["admins"]))
 
 		logging.info("Registering callbacks")
 		self.add_listener("registered", self.registered)
 		self.add_listener("invite", self.invited)
+		self.add_listener("nick", self.chadminnick)
+		self.add_listener("quit", self.rmadmin)
 
 		logging.info("Loading modules")
 		sys.path.append(self.cwd)
@@ -50,6 +53,15 @@ class Circa(client.Client):
 
 	def invited(self, chan, by):
 		self.join(chan)
+
+	def chadminnick(self, oldnick, newnick, chans):
+		if oldnick in self.server.admins:
+			self.server.admins.remove(oldnick)
+			self.server.admins.add(newnick)
+
+	def rmadmin(self, nick, *args):
+		if nick in self.server.admins:
+			self.server.admins.remove(nick)
 
 	def close(self):
 		self.send("QUIT")

@@ -5,6 +5,7 @@ import modules
 import sys
 
 from util.nick import nicklower
+from util.mask import match
 
 class Circa(client.Client):
 	modules = {}
@@ -67,8 +68,8 @@ class Circa(client.Client):
 		self.send("QUIT")
 		self.sock.close()
 
-	def is_admin(self, nick):
-		return nicklower(nick) in self.server.admins
+	def is_admin(self, prefix):
+		return any(match(mask, prefix) for mask in self.server.admins)
 
 	def load_module(self, name):
 		if name in self.modules:

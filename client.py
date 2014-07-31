@@ -102,18 +102,18 @@ class Client:
 		if not self.sock:
 			logging.error("Not connected to server")
 			return
-		
-		buf = ""
+
+		sock = self.sock.makefile('rb')
 		while True:
 			try:
-				buf += str(self.sock.recv(4096), "utf-8")
-				*msgs, buf = buf.split("\r\n")
-				for msg in msgs:
-					m = Message.parse(msg)
-					thread = threading.Thread(target=lambda: self.handle(m))
-					logging.debug("(%s) handler thread %s [%s]",
-						threading.current_thread().name, thread.name, m.raw)
-					thread.start()
+				msg = sock.readline().decode("utf-8", errors="ignore").rstrip("\r\n")
+				m = Message.parse(msg)
+				if not m:
+					raise socket.error
+				thread = threading.Thread(target=lambda: self.handle(m))
+				logging.debug("(%s) handler thread %s [%s]",
+					threading.current_thread().name, thread.name, m.raw)
+				thread.start()
 			except socket.error:
 				logging.info("Disconnected from server")
 				self.sock.close()
@@ -239,11 +239,11 @@ class Client:
 						elif mode in self.server.mode_prefix:
 							user = params.pop(0)
 							op = "+" if adding else "-"
-							chans = list(filter(lambda c: user in c,
-								self.channels.values()))
-							for chan in chans:
-								u = chan.users[user].mode
+							u = self.channels[chan].users[user].mode
+							try:
 								(u.add if adding else u.remove)(mode)
+							except KeyError:
+								pass
 							self.emit(op + "mode", chan, by, mode, user, msg)
 		elif c == "NICK":
 			nick = msg.params[0]

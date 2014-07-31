@@ -1,9 +1,8 @@
 from util.nick import nickeq, nicklower
 
 class User:
-	def __init__(self, nick, mode=None, registered=False):
+	def __init__(self, nick, mode=None):
 		self.nick = nicklower(nick)
-		self.registered = registered
 		self.mode = set(mode) if mode else set()
 
 	def __repr__(self):

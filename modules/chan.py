@@ -1,25 +1,22 @@
 class ChannelModule:
+	require = "cmd"
+
 	def __init__(self, circa):
 		self.circa = circa
 
-	def onload(self):
-		self.circa.add_listener("cmd.join", self.circa.join)
-		self.circa.add_listener("cmd.leave", self.leave)
-		self.circa.add_listener("cmd.goaway", self.leave)
-		self.circa.add_listener("cmd.quit", self.quit)
+		self.events = {
+			"cmd.join": [self.circa.join],
+			"cmd.leave": [self.leave],
+			"cmd.goaway": [self.leave],
+			"cmd.quit": [self.quit]
+		}
 
-	def onunload(self):
-		self.circa.remove_listener("cmd.join", self.circa.join)
-		self.circa.remove_listener("cmd.leave", self.leave)
-		self.circa.remove_listener("cmd.goaway", self.leave)
-		self.circa.remove_listener("cmd.quit", self.quit)
-
-	def leave(self, fr, to, text):
-		if self.circa.is_admin(fr) and fr != to:
+	def leave(self, fr, to, text, m):
+		if self.circa.is_admin(m.prefix) and fr != to:
 			self.circa.part(to)
 
-	def quit(self, fr, to, text):
-		if self.circa.is_admin(fr):
+	def quit(self, fr, to, text, m):
+		if self.circa.is_admin(m.prefix):
 			self.circa.close()
 
 module = ChannelModule

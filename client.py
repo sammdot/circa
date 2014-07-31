@@ -1,12 +1,11 @@
 import logging
-import re
 import socket
 import threading
 
 from channel import Channel, ChannelList, User
-from message import Message
 from server  import Server
 from util.nick import nickeq, nicklower
+from util.msg  import Message
 
 class Client:
 	def __init__(self, server, nick, username, realname, **conf):
@@ -199,14 +198,10 @@ class Client:
 					elif param == "NICKLEN":
 						self.server.nicklength = int(value)
 					elif param == "PREFIX":
-						if re.match(r"^\((.*)\)(.*)$", value):
-							modes = value.split(")")[0][1:]
-							prefixes = value.split(")")[1]
-
-							self.server.prefix_mode = dict(zip(prefixes, modes))
-							self.server.mode_prefix = dict(zip(modes, prefixes))
-
-							self.server.chmodes["b"].update(modes)
+						modes, prefixes = value[1:].split(")")
+						self.server.prefix_mode = dict(zip(prefixes, modes))
+						self.server.mode_prefix = dict(zip(modes, prefixes))
+						self.server.chmodes["b"].update(modes)
 					elif param == "TARGMAX":
 						for pair in value.split(","):
 							typ, num = pair.split(":")
@@ -229,7 +224,27 @@ class Client:
 			else:
 				self.emit("notice", fr, to, text, msg)
 		elif c == "MODE":
-			pass # TODO
+			by = msg.nick
+			adding = True
+			if msg.params[0][0] in self.server.types:
+				chan = msg.params[0].lower()
+				params = msg.params[1:]
+				while len(params):
+					modes = params.pop(0)
+					for mode in modes:
+						if mode == '+':
+							adding = True
+						elif mode == '-':
+							adding = False
+						elif mode in self.server.mode_prefix:
+							user = params.pop(0)
+							op = "+" if adding else "-"
+							chans = list(filter(lambda c: user in c,
+								self.channels.values()))
+							for chan in chans:
+								u = chan.users[user].mode
+								(u.add if adding else u.remove)(mode)
+							self.emit(op + "mode", chan, by, mode, user, msg)
 		elif c == "NICK":
 			nick = msg.params[0]
 			if nickeq(msg.nick, self.nick):

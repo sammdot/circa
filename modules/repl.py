@@ -34,11 +34,12 @@ class Repl(code.InteractiveConsole):
 		self.showtraceback()
 
 class ReplModule:
+	require = "cmd"
+
 	def __init__(self, circa):
 		self.circa = circa
 		self.repls = {}
 
-		self.require = ["cmd"]
 		self.events = {
 			"message": [self.handle_repl]
 		}

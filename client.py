@@ -168,6 +168,7 @@ class Client:
 				self.ctcp_notice(fr, "PONG " + " ".join(parts[1:]), msg)
 
 	def handle(self, msg):
+		self.emit("raw", msg)
 		c = msg.command
 		if c == "001":
 			self.nick = self.conf["nick"] + self.nickmod * "_"

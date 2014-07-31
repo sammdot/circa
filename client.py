@@ -161,17 +161,17 @@ class Client:
 
 		if type == "privmsg":
 			if text == "VERSION":
-				self.emit("ctcp.version", fr, to)
+				self.emit("ctcp.version", fr, to, msg)
 			elif len(parts) > 1 and parts[0] == "ACTION":
-				self.emit("action", fr, to, " ".join(parts[1:]))
+				self.emit("action", fr, to, " ".join(parts[1:]), msg)
 			elif len(parts) > 1 and parts[0] == "PING":
-				self.ctcp_notice(fr, "PONG " + " ".join(parts[1:]))
+				self.ctcp_notice(fr, "PONG " + " ".join(parts[1:]), msg)
 
 	def handle(self, msg):
 		c = msg.command
 		if c == "001":
 			self.nick = self.conf["nick"] + self.nickmod * "_"
-			self.emit("registered", msg.params[0])
+			self.emit("registered", msg.params[0], msg)
 		elif c == "004":
 			self.server.usermodes = set(msg.params[3])
 		elif c == "005":
@@ -217,16 +217,16 @@ class Client:
 			self.send("NICK", self.conf["nick"] + self.nickmod * "_")
 		elif c == "PING":
 			self.send("PONG", msg.params[0])
-			self.emit("ping", msg.params[0])
+			self.emit("ping", msg.params[0], msg)
 		elif c == "PONG":
-			self.emit("pong", msg.params[0])
+			self.emit("pong", msg.params[0], msg)
 		elif c == "NOTICE":
 			fr, to = msg.nick, msg.params[0]
 			text = msg.params[1] or ""
 			if text[0] == "\x01" and "\x01" in text[1:]:
 				self._ctcp(fr, to, text, "notice")
 			else:
-				self.emit("notice", fr, to, text)
+				self.emit("notice", fr, to, text, msg)
 		elif c == "MODE":
 			pass # TODO
 		elif c == "NICK":
@@ -238,14 +238,14 @@ class Client:
 				chan.users[nick] = chan.users[msg.nick]
 				chan.users.pop(msg.nick)
 				chan.users[nick].nick = nicklower(nick)
-			self.emit("nick", msg.nick, nick, [c.name for c in chans])
+			self.emit("nick", msg.nick, nick, [c.name for c in chans], msg)
 		elif c == "375":
 			self.server.motd = msg.params[1] + "\n"
 		elif c == "372":
 			self.server.motd += msg.params[1] + "\n"
 		elif c == "376" or c == "422":
 			self.server.motd += msg.params[1] + "\n"
-			self.emit("motd", self.server.motd)
+			self.emit("motd", self.server.motd, msg)
 		elif c == "353":
 			channel = self.channels[msg.params[2][1:]]
 			if channel:
@@ -261,7 +261,7 @@ class Client:
 		elif c == "366":
 			channel = self.channels[msg.params[1][1:]]
 			if channel:
-				self.emit("names", msg.params[1], channel.users)
+				self.emit("names", msg.params[1], channel.users, msg)
 				self.send("MODE", msg.params[1])
 		elif c == "332":
 			channel = self.channels[msg.params[1][1:]]
@@ -291,10 +291,10 @@ class Client:
 				channel = self.channels[chan[1:]]
 				if channel:
 					channel.users[msg.nick] = User(nicklower(msg.nick))
-			self.emit("join", chan, nicklower(msg.nick))
+			self.emit("join", chan, nicklower(msg.nick), msg)
 		elif c == "PART":
 			chan = msg.params[0]
-			self.emit("part", chan, nicklower(msg.nick))
+			self.emit("part", chan, nicklower(msg.nick), msg)
 			if nickeq(self.nick, msg.nick):
 				self.channels.pop(chan[1:].lower())
 			else:
@@ -303,7 +303,7 @@ class Client:
 					channel.users.pop(msg.nick)
 		elif c == "KICK":
 			chan, who, reason, *rest = msg.params
-			self.emit("kick", chan, who, nicklower(msg.nick), reason)
+			self.emit("kick", chan, who, nicklower(msg.nick), reason, msg)
 			if nickeq(self.nick, msg.nick):
 				self.channels.pop(chan[1:].lower())
 			else:
@@ -316,21 +316,20 @@ class Client:
 			for chan in self.channels:
 				channels.append(chan.name)
 				chan.users.pop(nick)
-			self.emit("kill", nick, msg.params[1], channels)
+			self.emit("kill", nick, msg.params[1], channels, msg)
 		elif c == "PRIVMSG":
 			fr, to = nicklower(msg.nick), nicklower(msg.params[0])
 			text = " ".join(msg.params[1:])
 			if text[0] == "\x01" and "\x01" in text[1:]:
 				self._ctcp(fr, to, text, "privmsg")
 			else:
-				self.emit("message", fr, to, text)
-			self.emit("pm", fr, text, msg)
+				self.emit("message", fr, to, text, msg)
 		elif c == "INVITE":
-			self.emit("invite", msg.params[1], nicklower(msg.nick))
+			self.emit("invite", msg.params[1], nicklower(msg.nick), msg)
 		elif c == "QUIT":
 			if nickeq(self.nick, msg.nick):
 				return
 			chans = list(filter(lambda c: msg.nick in c, self.channels.values()))
 			for chan in chans:
 				chan.users.pop(msg.nick)
-			self.emit("quit", nicklower(msg.nick), [c.name for c in chans])
+			self.emit("quit", nicklower(msg.nick), [c.name for c in chans], msg)

@@ -106,7 +106,7 @@ class Client:
 		sock = self.sock.makefile('rb', 16384)
 		while True:
 			try:
-				msg = sock.readline().decode("utf-8").rstrip("\r\n")
+				msg = sock.readline().decode("utf-8", errors="ignore").rstrip("\r\n")
 				m = Message.parse(msg)
 				if not m:
 					raise socket.error
@@ -119,10 +119,6 @@ class Client:
 				self.sock.close()
 				self.sock = None
 				break
-			except UnicodeDecodeError:
-				# Disregard
-				print(msg)
-				continue
 	
 	def add_listener(self, event, fn):
 		"""Add a function to listen for the specified event."""

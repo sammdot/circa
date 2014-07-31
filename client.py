@@ -106,7 +106,7 @@ class Client:
 		sock = self.sock.makefile()
 		while True:
 			try:
-				msg = sock.readline()
+				msg = sock.readline().rstrip("\r\n")
 				print(msg)
 				m = Message.parse(msg)
 				thread = threading.Thread(target=lambda: self.handle(m))

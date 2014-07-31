@@ -80,7 +80,9 @@ class Circa(client.Client):
 				for mod in m.require.split():
 					self.load_module(mod)
 			self.modules[name] = module = m(self)
-			module.onload()
+			for event, listeners in module.events.items():
+				for listener in listeners:
+					self.add_listener(event, listener)
 			logging.info("Loaded {0}".format(name))
 			return True
 		except ImportError as e:
@@ -93,5 +95,8 @@ class Circa(client.Client):
 	def unload_module(self, name):
 		if name not in self.modules:
 			return
-		self.modules[name].onunload()
+		module = self.modules[name]
+		for event, listeners in module.events.items():
+			for listener in listeners:
+				self.add_listener(event, listener)
 		del sys.modules["modules." + name]

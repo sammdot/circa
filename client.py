@@ -103,7 +103,7 @@ class Client:
 			logging.error("Not connected to server")
 			return
 
-		sock = self.sock.makefile('rb', 16384)
+		sock = self.sock.makefile('rb')
 		while True:
 			try:
 				msg = sock.readline().decode("utf-8", errors="ignore").rstrip("\r\n")

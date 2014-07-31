@@ -242,7 +242,7 @@ class Client:
 							chans = list(filter(lambda c: user in c,
 								self.channels.values()))
 							for chan in chans:
-								u = chan.users[user]
+								u = chan.users[user].mode
 								(u.add if adding else u.remove)(mode)
 							self.emit(op + "mode", chan, by, mode, user, msg)
 		elif c == "NICK":

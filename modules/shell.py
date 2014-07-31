@@ -3,15 +3,12 @@ import subprocess
 class ShellModule:
 	def __init__(self, circa):
 		self.circa = circa
+		self.events = {
+			"message": [self.shell]
+		}
 
-	def onload(self):
-		self.circa.add_listener("message", self.shell)
-
-	def onunload(self):
-		self.circa.remove_listener("message", self.shell)
-
-	def shell(self, fr, to, msg):
-		if msg.startswith("$ ") and self.circa.is_admin(fr):
+	def shell(self, fr, to, msg, m):
+		if msg.startswith("$ ") and self.circa.is_admin(m.prefix):
 			try:
 				stdout = subprocess.check_output(["/bin/bash", "-c", msg[2:]],
 					stderr=subprocess.STDOUT)

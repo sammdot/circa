@@ -103,12 +103,13 @@ class Client:
 			logging.error("Not connected to server")
 			return
 
-		sock = self.sock.makefile()
+		sock = self.sock.makefile('r', 16384)
 		while True:
 			try:
 				msg = sock.readline().rstrip("\r\n")
-				print(msg)
 				m = Message.parse(msg)
+				if not m:
+					raise socket.error
 				thread = threading.Thread(target=lambda: self.handle(m))
 				logging.debug("(%s) handler thread %s [%s]",
 					threading.current_thread().name, thread.name, m.raw)
@@ -118,6 +119,10 @@ class Client:
 				self.sock.close()
 				self.sock = None
 				break
+			except UnicodeDecodeError:
+				# Disregard
+				print(msg)
+				continue
 	
 	def add_listener(self, event, fn):
 		"""Add a function to listen for the specified event."""

@@ -38,19 +38,17 @@ class ReplModule:
 		self.circa = circa
 		self.repls = {}
 
-	def onload(self):
-		self.circa.add_listener("message", self.handle_repl)
+		self.events = {
+			"message": [self.handle_repl]
+		}
 
-	def onunload(self):
-		self.circa.remove_listener("message", self.handle_repl)
-
-	def handle_repl(self, fr, to, text):
+	def handle_repl(self, fr, to, text, m):
 		if text.startswith(">>> "):
 			self.repl(nicklower(fr), nicklower(fr) if nickeq(to, self.circa.nick) \
-					else nicklower(to), text[len(">>> "):])
+					else nicklower(to), text[len(">>> "):], m)
 
-	def repl(self, fr, to, command):
-		if self.circa.is_admin(fr):
+	def repl(self, fr, to, command, m):
+		if self.circa.is_admin(m.prefix):
 			if to not in self.repls:
 				self.repls[to] = Repl(self.circa, to)
 			self.repls[to].run(command)

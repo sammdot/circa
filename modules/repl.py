@@ -38,6 +38,7 @@ class ReplModule:
 		self.circa = circa
 		self.repls = {}
 
+		self.require = ["cmd"]
 		self.events = {
 			"message": [self.handle_repl]
 		}

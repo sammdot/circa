@@ -224,7 +224,27 @@ class Client:
 			else:
 				self.emit("notice", fr, to, text, msg)
 		elif c == "MODE":
-			pass # TODO
+			by = msg.nick
+			adding = True
+			if msg.params[0][0] in self.server.types:
+				chan = msg.params[0].lower()
+				params = msg.params[1:]
+				while len(params):
+					modes = params.pop(0)
+					for mode in modes:
+						if mode == '+':
+							adding = True
+						elif mode == '-':
+							adding = False
+						elif mode in self.server.mode_prefix:
+							user = params.pop(0)
+							op = "+" if adding else "-"
+							chans = list(filter(lambda c: user in c,
+								self.channels.values()))
+							for chan in chans:
+								u = chan.users[user]
+								(u.add if adding else u.remove)(mode)
+							self.emit(op + "mode", chan, by, mode, user, msg)
 		elif c == "NICK":
 			nick = msg.params[0]
 			if nickeq(msg.nick, self.nick):

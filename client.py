@@ -239,14 +239,11 @@ class Client:
 						elif mode in self.server.mode_prefix:
 							user = params.pop(0)
 							op = "+" if adding else "-"
-							chans = list(filter(lambda c: user in c,
-								self.channels.values()))
-							for chan in chans:
-								u = chan.users[user].mode
-								try:
-									(u.add if adding else u.remove)(mode)
-								except KeyError:
-									pass
+							u = self.channels[chan].users[user].mode
+							try:
+								(u.add if adding else u.remove)(mode)
+							except KeyError:
+								pass
 							self.emit(op + "mode", chan, by, mode, user, msg)
 		elif c == "NICK":
 			nick = msg.params[0]

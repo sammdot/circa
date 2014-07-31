@@ -102,18 +102,17 @@ class Client:
 		if not self.sock:
 			logging.error("Not connected to server")
 			return
-		
-		buf = ""
+
+		sock = self.sock.makefile()
 		while True:
 			try:
-				buf += str(self.sock.recv(4096), "utf-8")
-				*msgs, buf = buf.split("\r\n")
-				for msg in msgs:
-					m = Message.parse(msg)
-					thread = threading.Thread(target=lambda: self.handle(m))
-					logging.debug("(%s) handler thread %s [%s]",
-						threading.current_thread().name, thread.name, m.raw)
-					thread.start()
+				msg = sock.readline()
+				print(msg)
+				m = Message.parse(msg)
+				thread = threading.Thread(target=lambda: self.handle(m))
+				logging.debug("(%s) handler thread %s [%s]",
+					threading.current_thread().name, thread.name, m.raw)
+				thread.start()
 			except socket.error:
 				logging.info("Disconnected from server")
 				self.sock.close()

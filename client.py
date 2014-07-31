@@ -3,9 +3,9 @@ import socket
 import threading
 
 from channel import Channel, ChannelList, User
-from message import Message
 from server  import Server
 from util.nick import nickeq, nicklower
+from util.msg  import Message
 
 class Client:
 	def __init__(self, server, nick, username, realname, **conf):

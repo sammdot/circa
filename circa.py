@@ -5,6 +5,7 @@ import modules
 import sys
 
 from util.nick import nicklower
+from util.mask import match
 
 class Circa(client.Client):
 	modules = {}
@@ -26,13 +27,11 @@ class Circa(client.Client):
 		logging.info("Registering callbacks")
 		self.add_listener("registered", self.registered)
 		self.add_listener("invite", self.invited)
-		self.add_listener("nick", self.chadminnick)
-		self.add_listener("quit", self.rmadmin)
 
 		logging.info("Loading modules")
 		sys.path.append(self.cwd)
 		self.load_module("cmd")
-		self.load_module("leave")
+		self.load_module("chan")
 		for module in conf["modules"]:
 			self.load_module(module)
 
@@ -42,7 +41,7 @@ class Circa(client.Client):
 		for line in msg.splitlines():
 			client.Client.say(self, to, line)
 
-	def registered(self, nick):
+	def registered(self, nick, m):
 		self.send("UMODE2", "+B")
 		if "password" in self.conf:
 			self.send("PRIVMSG", "NickServ", "IDENTIFY {0}".format(
@@ -51,24 +50,15 @@ class Circa(client.Client):
 			self.join("#" + chan)
 		self.server.admins = set(map(nicklower, self.conf["admins"]))
 
-	def invited(self, chan, by):
+	def invited(self, chan, by, m):
 		self.join(chan)
-
-	def chadminnick(self, oldnick, newnick, chans):
-		if oldnick in self.server.admins:
-			self.server.admins.remove(oldnick)
-			self.server.admins.add(newnick)
-
-	def rmadmin(self, nick, *args):
-		if nick in self.server.admins:
-			self.server.admins.remove(nick)
 
 	def close(self):
 		self.send("QUIT")
 		self.sock.close()
 
-	def is_admin(self, nick):
-		return nicklower(nick) in self.server.admins
+	def is_admin(self, prefix):
+		return any(match(mask, prefix) for mask in self.server.admins)
 
 	def load_module(self, name):
 		if name in self.modules:
@@ -79,7 +69,9 @@ class Circa(client.Client):
 				for mod in m.require.split():
 					self.load_module(mod)
 			self.modules[name] = module = m(self)
-			module.onload()
+			for event, listeners in module.events.items():
+				for listener in listeners:
+					self.add_listener(event, listener)
 			logging.info("Loaded {0}".format(name))
 			return True
 		except ImportError as e:
@@ -92,5 +84,8 @@ class Circa(client.Client):
 	def unload_module(self, name):
 		if name not in self.modules:
 			return
-		self.modules[name].onunload()
+		module = self.modules[name]
+		for event, listeners in module.events.items():
+			for listener in listeners:
+				self.add_listener(event, listener)
 		del sys.modules["modules." + name]

@@ -1,15 +1,14 @@
 class RawModule:
+	require = "cmd"
+
 	def __init__(self, circa):
 		self.circa = circa
+		self.events = {
+			"cmd.raw": [self.raw]
+		}
 
-	def onload(self):
-		self.circa.add_listener("cmd.raw", self.raw)
-
-	def onunload(self):
-		self.circa.remove_listener("cmd.raw", self.raw)
-
-	def raw(self, fr, to, msg):
-		if self.circa.is_admin(fr):
+	def raw(self, fr, to, msg, m):
+		if self.circa.is_admin(m.prefix):
 			self.circa.send(msg)
 
 module = RawModule

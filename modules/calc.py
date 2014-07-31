@@ -2,25 +2,23 @@ import re
 import subprocess
 
 class CalcModule:
+	require = "cmd"
+
 	def __init__(self, circa):
 		self.circa = circa
 		self.contexts = {}
 
-	def onload(self):
-		self.circa.add_listener("cmd.dc", self.dc)
-		self.circa.add_listener("cmd.dc!", self.dc1)
-		self.circa.add_listener("cmd.bc", self.bc)
-
-	def onunload(self):
-		self.circa.remove_listener("cmd.dc", self.dc)
-		self.circa.remove_listener("cmd.dc!", self.dc1)
-		self.circa.remove_listener("cmd.bc", self.bc)
+		self.events = {
+			"cmd.dc": [self.dc],
+			"cmd.dc!": [self.dc1],
+			"cmd.bc": [self.bc]
+		}
 	
-	def dc(self, fr, to, expr):
+	def dc(self, fr, to, expr, m):
 		expr = re.sub(r"-([0-9])", r"_\1", expr)
 		self.dc1(fr, to, expr + " p")
 
-	def dc1(self, fr, to, expr):
+	def dc1(self, fr, to, expr, m):
 		if to not in self.contexts:
 			self.contexts[to] = None
 		expr = re.sub(r"\b_\b", str(self.contexts[to]), expr)
@@ -29,7 +27,7 @@ class CalcModule:
 			input=bytes(expr, "utf-8"), stderr=subprocess.STDOUT), "utf-8")
 		self.circa.say(to, str(self.contexts[to]))
 
-	def bc(self, fr, to, expr):
+	def bc(self, fr, to, expr, m):
 		if to not in self.contexts:
 			self.contexts[to] = None
 		expr = re.sub(r"\b_\b", str(self.contexts[to]), expr) + ";\n"

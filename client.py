@@ -1,5 +1,4 @@
 import logging
-import re
 import socket
 import threading
 
@@ -199,14 +198,10 @@ class Client:
 					elif param == "NICKLEN":
 						self.server.nicklength = int(value)
 					elif param == "PREFIX":
-						if re.match(r"^\((.*)\)(.*)$", value):
-							modes = value.split(")")[0][1:]
-							prefixes = value.split(")")[1]
-
-							self.server.prefix_mode = dict(zip(prefixes, modes))
-							self.server.mode_prefix = dict(zip(modes, prefixes))
-
-							self.server.chmodes["b"].update(modes)
+						modes, prefixes = value[1:].split(")")
+						self.server.prefix_mode = dict(zip(prefixes, modes))
+						self.server.mode_prefix = dict(zip(modes, prefixes))
+						self.server.chmodes["b"].update(modes)
 					elif param == "TARGMAX":
 						for pair in value.split(","):
 							typ, num = pair.split(":")

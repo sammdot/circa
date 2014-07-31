@@ -103,10 +103,10 @@ class Client:
 			logging.error("Not connected to server")
 			return
 
-		sock = self.sock.makefile('r', 16384)
+		sock = self.sock.makefile('rb', 16384)
 		while True:
 			try:
-				msg = sock.readline().rstrip("\r\n")
+				msg = sock.readline().decode("utf-8").rstrip("\r\n")
 				m = Message.parse(msg)
 				if not m:
 					raise socket.error

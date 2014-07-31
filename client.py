@@ -243,7 +243,10 @@ class Client:
 								self.channels.values()))
 							for chan in chans:
 								u = chan.users[user].mode
-								(u.add if adding else u.remove)(mode)
+								try:
+									(u.add if adding else u.remove)(mode)
+								except KeyError:
+									pass
 							self.emit(op + "mode", chan, by, mode, user, msg)
 		elif c == "NICK":
 			nick = msg.params[0]

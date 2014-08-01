@@ -227,7 +227,7 @@ class Client:
 			by = msg.nick
 			adding = True
 			if msg.params[0][0] in self.server.types:
-				chan = msg.params[0].lower()
+				chan = msg.params[0].lower()[1:]
 				params = msg.params[1:]
 				while len(params):
 					modes = params.pop(0)

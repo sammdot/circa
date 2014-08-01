@@ -3,6 +3,7 @@ import client
 import importlib
 import modules
 import sys
+import time
 
 from util.nick import nicklower
 from util.mask import match
@@ -46,6 +47,7 @@ class Circa(client.Client):
 		if "password" in self.conf:
 			self.send("PRIVMSG", "NickServ", "IDENTIFY {0}".format(
 					str(self.conf["password"])))
+		time.sleep(1)
 		for chan in self.conf["channels"]:
 			self.join("#" + chan)
 		self.server.admins = set(map(nicklower, self.conf["admins"]))

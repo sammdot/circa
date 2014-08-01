@@ -89,5 +89,5 @@ class Circa(client.Client):
 		module = self.modules[name]
 		for event, listeners in module.events.items():
 			for listener in listeners:
-				self.add_listener(event, listener)
+				self.remove_listener(event, listener)
 		del sys.modules["modules." + name]

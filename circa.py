@@ -64,6 +64,7 @@ class Circa(client.Client):
 
 	def load_module(self, name):
 		if name in self.modules:
+			logging.error("Already loaded: {0}".format(name))
 			return False
 		try:
 			m = importlib.import_module("modules." + name).module

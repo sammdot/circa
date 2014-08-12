@@ -4,6 +4,7 @@ class User:
 	def __init__(self, nick, mode=None):
 		self.nick = nicklower(nick)
 		self.mode = set(mode) if mode else set()
+		self.messages = []
 
 	def __repr__(self):
 		return "User({0})".format(self.nick)

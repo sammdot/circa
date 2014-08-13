@@ -15,16 +15,15 @@ class Message:
 		nick, prefix, command = None, None, None
 
 		if line.startswith(":"):
-			prefix, command, *params = line.split(" ")
+			prefix, command = line.split(" ", 1)
 			prefix = prefix[1:]
 			nick = prefix.split("!")[0] if "@" in prefix else None
 		else:
-			command, *params = line.split(" ")
+			command = line
 
-		c = [param.startswith(":") for param in params]
-		if True in c:
-			fc = c.index(True)
-			params = params[:fc] + [" ".join(params[fc:])[1:]]
+		command, *trail = command.split(" :", 1)
+		command, *params = command.split(" ")
+		params.extend(trail)
 
 		return Message(line, nick, prefix, command, params)
 

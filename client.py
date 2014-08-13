@@ -330,8 +330,9 @@ class Client:
 			nick = nicklower(msg.params[0])
 			channels = []
 			for chan in self.channels:
-				channels.append(chan.name)
-				chan.users.pop(nick)
+				if nick in chan.users:
+					channels.append(chan.name)
+					chan.users.pop(nick)
 			self.emit("kill", nick, msg.params[1], channels, msg)
 		elif c == "PRIVMSG":
 			fr, to = nicklower(msg.nick), nicklower(msg.params[0])

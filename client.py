@@ -36,9 +36,6 @@ class Client:
 
 		if self.conf["autoconn"]:
 			threading.Thread(name="main", target=self.connect).start()
-
-	def __repr__(self):
-		return "Circa({0})".format(self.server.host)
 	
 	def connect(self):
 		"""Attempt to connect to the server. Log in if successful."""

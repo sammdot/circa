@@ -25,4 +25,4 @@ class Server:
 		self.admins = set()
 
 	def __repr__(self):
-		return "Server({0})".format(self.host)
+		return "{0}('{1}', '{2}')".format(self.__name__, self.host, self.port)

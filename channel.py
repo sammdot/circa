@@ -7,7 +7,7 @@ class User:
 		self.messages = []
 
 	def __repr__(self):
-		return "User({0})".format(self.nick)
+		return "{0}('{1}')".format(self.name, self.nick)
 
 class NickDict(dict):
 	def __setitem__(self, nick, value):
@@ -39,7 +39,7 @@ class Channel:
 		self.mode = set()
 	
 	def __repr__(self):
-		return "Channel({0})".format(self.name)
+		return "{0}('{1}')".format(self.__name__, self.name)
 	
 	def __contains__(self, nick):
 		return nick in self.users

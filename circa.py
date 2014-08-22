@@ -3,6 +3,7 @@ import client
 import importlib
 import modules
 import sys
+import time
 
 from util.nick import nicklower
 from util.mask import match
@@ -46,6 +47,7 @@ class Circa(client.Client):
 		if "password" in self.conf:
 			self.send("PRIVMSG", "NickServ", "IDENTIFY {0}".format(
 					str(self.conf["password"])))
+		time.sleep(1)
 		for chan in self.conf["channels"]:
 			self.join("#" + chan)
 		self.server.admins = set(map(nicklower, self.conf["admins"]))
@@ -62,6 +64,7 @@ class Circa(client.Client):
 
 	def load_module(self, name):
 		if name in self.modules:
+			logging.error("Already loaded: {0}".format(name))
 			return False
 		try:
 			m = importlib.import_module("modules." + name).module
@@ -87,5 +90,5 @@ class Circa(client.Client):
 		module = self.modules[name]
 		for event, listeners in module.events.items():
 			for listener in listeners:
-				self.add_listener(event, listener)
+				self.remove_listener(event, listener)
 		del sys.modules["modules." + name]

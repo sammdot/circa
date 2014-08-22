@@ -1,26 +1,7 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
-"""
-Usage: circa [options] [CONFIG]
-
-Options:
-    -s HOST  --server HOST      Connect to HOST
-    -p PORT  --port PORT        Connect to port PORT [default: 6667]
-    -P       --password         Provide a password prompt
-    -n NICK  --nick NICK        Set nick [default: circa]
-    -u UNAME  --username UNAME  Set username [default: circa]
-    -r NAME  --realname NAME    Set real name (ircname) to NAME [default: circa]
-    -l FILE  --log FILE         Log to a file [default: circa.log]
-    -c CHAR  --cmd CHAR         Set the prefix for command characters [default: \\]
-
-    -v       --verbose          Log messages more verbosely
-    -h       --help             Show this help message.
-             --version          Display version information and quit.
-"""
-
-__version__ = 1.0
-
-import docopt
+import argparse
+import configparser
 import getpass
 import logging
 import pathlib
@@ -41,30 +22,58 @@ def sig(*args):
 signal.signal(signal.SIGINT, sig)
 signal.signal(signal.SIGTERM, sig)
 
+def build_parser():
+	parser = argparse.ArgumentParser(prog="circa")
+	parser.add_argument("-s", "--server", metavar="HOST", help="Connect to HOST")
+	parser.add_argument("-p", "--port", default=6667,
+		help="Connect to port PORT (default: 6667)")
+	parser.add_argument("-n", "--nick", default="circa",
+		help="Set nick (default: circa)")
+	parser.add_argument("-u", "--username", default="circa",
+		help="Set username (default: circa)")
+	parser.add_argument("-r", "--realname", metavar="NAME", default="circa",
+		help="Set real name (ircname) (default: circa)")
+	parser.add_argument("-P", "--password", action="store_true",
+		help="Provide a password prompt")
+	parser.add_argument("-l", "--log", metavar="FILE", default="circa.log",
+		help="Log to a file (default: circa.log)")
+	parser.add_argument("-c", "--cmd", metavar="CHAR", default="\\",
+		help="Set the prefix for command characters (default: \\)")
+	parser.add_argument("-v", "--verbose", action="store_true",
+		help="Log messages more verbosely")
+	parser.add_argument("CONFIG", nargs="?", help="Configuration file")
+	return parser
+
 def parse_args():
-	args = docopt.docopt(__doc__, version=__version__)
+	args = build_parser().parse_args()
 
 	conf = {
 		"cwd": pathlib.Path(sys.argv[0]).resolve().parent,
-		"server": args["-s"],
-		"port": int(args["-p"]),
-		"nick": args["-n"],
-		"username": args["-u"],
-		"realname": args["-r"],
-		"log": args["-l"],
-		"prefix": args["-c"],
-		"verbose": args["-v"]
+		"server": args.server,
+		"port": int(args.port),
+		"nick": args.nick,
+		"username": args.username,
+		"realname": args.realname,
+		"log": args.log,
+		"prefix": args.cmd,
+		"verbose": args.verbose
 	}
 
-	if args["CONFIG"]:
-		with open(args["CONFIG"]) as f:
-			conf.update(yaml.load(f))
+	if args.CONFIG:
+		with open(args.CONFIG) as f:
+			cp = configparser.ConfigParser(delimiters=("=",), allow_no_value=True)
+			cp.read_file(f)
+			conf.update(cp["server"])
+			conf.update(cp["bot"])
+			conf["channels"] = list(cp["channels"].keys())
+			conf["modules"] = list(cp["modules"].keys())
+			conf["admins"] = list(cp["admins"].keys())
 
 	logging.basicConfig(filename=conf["log"],
 		level=logging.DEBUG if conf["verbose"] else logging.INFO,
 		style="%", format="%(asctime)s %(levelname)s %(message)s")
 
-	if args["-P"] and "password" not in conf:
+	if args.password and "password" not in conf:
 		conf["password"] = getpass.getpass()
 
 	return conf

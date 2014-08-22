@@ -36,9 +36,6 @@ class Client:
 
 		if self.conf["autoconn"]:
 			threading.Thread(name="main", target=self.connect).start()
-
-	def __repr__(self):
-		return "Circa({0})".format(self.server.host)
 	
 	def connect(self):
 		"""Attempt to connect to the server. Log in if successful."""
@@ -227,7 +224,7 @@ class Client:
 			by = msg.nick
 			adding = True
 			if msg.params[0][0] in self.server.types:
-				chan = msg.params[0].lower()
+				chan = msg.params[0].lower()[1:]
 				params = msg.params[1:]
 				while len(params):
 					modes = params.pop(0)
@@ -330,8 +327,9 @@ class Client:
 			nick = nicklower(msg.params[0])
 			channels = []
 			for chan in self.channels:
-				channels.append(chan.name)
-				chan.users.pop(nick)
+				if nick in chan.users:
+					channels.append(chan.name)
+					chan.users.pop(nick)
 			self.emit("kill", nick, msg.params[1], channels, msg)
 		elif c == "PRIVMSG":
 			fr, to = nicklower(msg.nick), nicklower(msg.params[0])
@@ -340,6 +338,8 @@ class Client:
 				self._ctcp(fr, to, text, "privmsg")
 			else:
 				self.emit("message", fr, to, text, msg)
+				if to[0] in self.server.types:
+					self.channels[to[1:]].users[fr].messages.append(text)
 		elif c == "INVITE":
 			self.emit("invite", msg.params[1], nicklower(msg.nick), msg)
 		elif c == "QUIT":

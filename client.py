@@ -338,8 +338,8 @@ class Client:
 				self._ctcp(fr, to, text, "privmsg")
 			else:
 				self.emit("message", fr, to, text, msg)
-				if to[0] in self.server.types:
-					self.channels[to[1:]].users[fr].messages.append(text)
+			if to[0] in self.server.types:
+				self.channels[to[1:]].users[fr].messages.append(text)
 		elif c == "INVITE":
 			self.emit("invite", msg.params[1], nicklower(msg.nick), msg)
 		elif c == "QUIT":

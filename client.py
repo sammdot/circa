@@ -48,6 +48,8 @@ class Client:
 			logging.info("Connected to %s", self.server.host)
 
 			self.send("NICK", self.conf["nick"])
+			if "password" in self.conf:
+				self.send("PASS", self.conf["password"])
 			self.send("USER", self.conf["username"], 8, "*", \
 				self.conf["realname"])
 

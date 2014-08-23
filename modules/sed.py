@@ -12,6 +12,7 @@ class SedModule:
 	def sub(self, fr, to, msg, m):
 		match = self.subre.match(msg)
 		if match:
+			self.circa.channels[to[1:]].users[fr].messages.pop()
 			target, search, lhs, rhs, flags = match.groups()
 			lhsre = re.compile(lhs)
 			user = target or fr
@@ -20,8 +21,6 @@ class SedModule:
 				msgs = [line for line in msgs if search in line]
 			msgs = [line for line in msgs if lhsre.search(line)]
 			if len(msgs):
-				self.circa.channels[to[1:]].users[fr].messages.pop()
-				print(self.circa.channels[to[1:]].users[fr].messages)
 				t = msgs[0]
 				f = 0
 				if "i" in flags: f |= re.I

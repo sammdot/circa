@@ -1,11 +1,24 @@
 import re
+import string
 
 """
 The 'tr' implementation was based on github:ikegami-yukino/python-tr.
 """
 
+all = [chr(i) for i in range(256)]
+
 def mklist(src):
-	src = src.replace("\\/", "/")
+	src = src.replace("\\/", "/") \
+		.replace("[:upper:]", string.ascii_uppercase) \
+		.replace("[:lower:]", string.ascii_lowercase) \
+		.replace("[:alpha:]", string.ascii_letters) \
+		.replace("[:digit:]", string.digits) \
+		.replace("[:xdigit:]", string.hexdigits) \
+		.replace("[:alnum:]", string.digits + string.ascii_letters) \
+		.replace("[:blank:]", string.whitespace) \
+		.replace("[:punct:]", string.punctuation) \
+		.replace("[:cntrl:]", "".join([i for i in all if i not in string.printable])) \
+		.replace("[:print:]", string.printable)
 	lst = []
 	bs = False
 	hy = False
@@ -21,18 +34,15 @@ def mklist(src):
 		lst.append(ord(ch))
 		bs = False
 		hy = False
-	return lst
-
-def mkchar(lst):
-	return list(map(chr, lst))
+	return "".join([chr(i) for i in lst])
 
 def squeeze(lst, src):
 	for ch in lst:
-		src = re.sub(ch + r"{2,}", ch, sub)
+		src = re.sub(ch + r"{2,}", ch, src)
 	return src
 
 def tr(frm, to, src):
-	return src.translate(dict(zip(frm, to)))
+	return src.translate(str.maketrans(frm, to))
 
 def unescape(text):
 	"""Unescape function based on http://stackoverflow.com/a/15528611."""
@@ -113,9 +123,30 @@ class SedModule:
 			msgs = self.circa.channels[to[1:]].users[user].messages[::-1]
 			if search:
 				msgs = [line for line in msgs if search in line]
-			lhslst = mkchar(mklist(lhs))
-			msgs = [line for line in msgs if len(set(line) & set(lhslst))]
+			lhslst = mklist(lhs)
+			rhslst = mklist(rhs)
+			find = [c for c in all if c not in lhslst] if "c" in flags else lhslst
+			msgs = [line for line in msgs if len(set(line) & set(find))]
 			if len(msgs):
-				t = msgs[0]
+				u = msgs[0]
+				t = u[len("\x01ACTION "):] if u.startswith("\x01ACTION ") else u
+				rhs = unescape(rhs.replace("\\/", "/"))
+				if "d" in flags:
+					todel = lhslst[len(rhslst):]
+					lhslst = lhslst[:len(rhslst)]
+					t = "".join([c for c in t if c not in todel])
+				else:
+					if len(rhslst) < len(lhslst):
+						rhslst += "".join([rhslst[-1]] * (len(lhslst) - len(rhslst)))
+					else:
+						rhslst = rhslst[:len(lhslst)]
+				t = tr(lhslst, rhslst, t)
+				if "s" in flags:
+					t = squeeze(rhslst, t)
+				if u.startswith("\x01ACTION "):
+					t = t.replace("\x01", "")
+					self.circa.say(to, "\x02* {0}\x02 {1}".format(user, t))
+				else:
+					self.circa.say(to, "<{0}> {1}".format(user, t))
 
 module = SedModule

@@ -26,6 +26,7 @@ class ChannelModule:
 	def restart(self, fr, to, text, m):
 		if self.circa.is_admin(m.prefix):
 			self.circa.close()
+			os.chdir(str(self.circa.conf["cwd"]))
 			os.execl(sys.executable, sys.executable, *sys.argv)
 
 module = ChannelModule

@@ -20,13 +20,20 @@ class SedModule:
 				msgs = [line for line in msgs if search in line]
 			msgs = [line for line in msgs if lhsre.search(line)]
 			if len(msgs):
+				self.circa.channels[to[1:]].users[fr].messages.pop()
+				print(self.circa.channels[to[1:]].users[fr].messages)
 				t = msgs[0]
+				f = 0
+				if "i" in flags: f |= re.I
+				if "x" in flags: f |= re.X
+				if "s" in flags: f |= re.S
+				count = int("g" not in flags)
 				if t.startswith("\x01ACTION "):
 					t = t[len("\x01ACTION "):-1]
-					t = lhsre.sub(rhs, t)
+					t = lhsre.sub(rhs, t, count=count)
 					self.circa.say(to, "\x02* {0}\x02 {1}".format(user, t))
 				else:
-					t = lhsre.sub(rhs, t)
+					t = lhsre.sub(rhs, t, count=count)
 					self.circa.say(to, "<{0}> {1}".format(user, t))
 
 module = SedModule

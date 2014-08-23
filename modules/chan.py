@@ -1,3 +1,6 @@
+import os
+import sys
+
 class ChannelModule:
 	require = "cmd"
 
@@ -8,6 +11,7 @@ class ChannelModule:
 			"cmd.join": [self.circa.join],
 			"cmd.leave": [self.leave],
 			"cmd.goaway": [self.leave],
+			"cmd.restart": [self.restart],
 			"cmd.quit": [self.quit]
 		}
 
@@ -18,5 +22,10 @@ class ChannelModule:
 	def quit(self, fr, to, text, m):
 		if self.circa.is_admin(m.prefix):
 			self.circa.close()
+
+	def restart(self, fr, to, text, m):
+		if self.circa.is_admin(m.prefix):
+			self.circa.close()
+			os.execl(sys.executable, sys.executable, *sys.argv)
 
 module = ChannelModule

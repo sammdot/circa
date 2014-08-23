@@ -29,10 +29,10 @@ class SedModule:
 				count = int("g" not in flags)
 				if t.startswith("\x01ACTION "):
 					t = t[len("\x01ACTION "):-1]
-					t = lhsre.sub(rhs, t, count=count)
+					t = lhsre.sub(rhs, t, count=count, flags=f)
 					self.circa.say(to, "\x02* {0}\x02 {1}".format(user, t))
 				else:
-					t = lhsre.sub(rhs, t, count=count)
+					t = lhsre.sub(rhs, t, count=count, flags=f)
 					self.circa.say(to, "<{0}> {1}".format(user, t))
 
 module = SedModule

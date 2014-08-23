@@ -1,3 +1,5 @@
+from util.esc import unescape
+
 class RawModule:
 	require = "cmd"
 
@@ -9,6 +11,6 @@ class RawModule:
 
 	def raw(self, fr, to, msg, m):
 		if self.circa.is_admin(m.prefix):
-			self.circa.send(msg)
+			self.circa.send(unescape(msg))
 
 module = RawModule

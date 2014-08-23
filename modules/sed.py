@@ -85,7 +85,7 @@ class SedModule:
 				msgs = [line for line in msgs if search in line]
 			msgs = [line for line in msgs if re.search(lhs, line)]
 			if len(msgs):
-				t = msgs[0]
+				u = msgs[0]
 				f = 0
 				if "i" in flags: f |= re.I
 				if "x" in flags: f |= re.X
@@ -94,12 +94,12 @@ class SedModule:
 				rhs = re.sub(r"(?<!\\)(\\)(?=\d+|g<\w+>)", r"\\\\", rhs)
 				rhs = unescape(rhs)
 				count = int("g" not in flags)
-				if t.startswith("\x01ACTION "):
-					t = t[len("\x01ACTION "):-1]
-					t = re.sub(lhs, rhs, t, count=count, flags=f)
+				t = u[len("\x01ACTION "):] if u.startswith("\x01ACTION ") else u
+				t = re.sub(lhs, rhs, t, count=count, flags=f)
+				if u.startswith("\x01ACTION "):
+					t = t.replace("\x01", "")
 					self.circa.say(to, "\x02* {0}\x02 {1}".format(user, t))
 				else:
-					t = re.sub(lhs, rhs, t, count=count, flags=f)
 					self.circa.say(to, "<{0}> {1}".format(user, t))
 
 	def tr(self, fr, to, msg, m):

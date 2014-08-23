@@ -334,12 +334,12 @@ class Client:
 		elif c == "PRIVMSG":
 			fr, to = nicklower(msg.nick), nicklower(msg.params[0])
 			text = " ".join(msg.params[1:])
+			if to[0] in self.server.types:
+				self.channels[to[1:]].users[fr].messages.append(text)
 			if text[0] == "\x01" and "\x01" in text[1:]:
 				self._ctcp(fr, to, text, "privmsg")
 			else:
 				self.emit("message", fr, to, text, msg)
-			if to[0] in self.server.types:
-				self.channels[to[1:]].users[fr].messages.append(text)
 		elif c == "INVITE":
 			self.emit("invite", msg.params[1], nicklower(msg.nick), msg)
 		elif c == "QUIT":

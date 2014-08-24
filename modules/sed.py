@@ -94,15 +94,14 @@ class SedModule:
 			user = target or fr
 			msgs = self.circa.channels[to[1:]].users[user].messages[::-1]
 			if search:
-				msgs = [line for line in msgs if search in line]
+				msgs = [line for line in msgs if search.lower() in line.lower()]
 			lhslst = mklist(lhs)
-			rhslst = mklist(rhs)
-			find = [c.lower() for c in all if c not in lhslst] if "c" in flags else lhslst
-			msgs = [line for line in msgs if len(set(line.lower()) & set(find))]
+			rhslst = unescape(mklist(rhs.replace("\\/", "/")))
+			find = [c for c in all if c not in lhslst] if "c" in flags else lhslst
+			msgs = [line for line in msgs if len(set(line) & set(find))]
 			if len(msgs):
 				u = msgs[0]
 				t = u[len("\x01ACTION "):] if u.startswith("\x01ACTION ") else u
-				rhs = unescape(rhs.replace("\\/", "/"))
 				if "d" in flags:
 					todel = lhslst[len(rhslst):]
 					lhslst = lhslst[:len(rhslst)]

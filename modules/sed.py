@@ -59,10 +59,10 @@ class SedModule:
 	def sub(self, fr, to, msg, m):
 		match = self.subre.match(msg)
 		if match:
-			self.circa.channels[to[1:]].users[fr].messages.pop()
 			target, search, lhs, rhs, flags = match.groups()
 			user = target or fr
 			msgs = self.circa.channels[to[1:]].users[user].messages[::-1]
+			msgs = [line for line in msgs if not self.subre.match(line)]
 			if search:
 				msgs = [line for line in msgs if search.lower() in line.lower()]
 			msgs = [line for line in msgs if re.search(lhs, line)]
@@ -89,10 +89,10 @@ class SedModule:
 	def tr(self, fr, to, msg, m):
 		match = self.trre.match(msg)
 		if match:
-			self.circa.channels[to[1:]].users[fr].messages.pop()
 			target, search, lhs, rhs, flags = match.groups()
 			user = target or fr
 			msgs = self.circa.channels[to[1:]].users[user].messages[::-1]
+			msgs = [line for line in msgs if not self.trre.match(line)]
 			if search:
 				msgs = [line for line in msgs if search.lower() in line.lower()]
 			lhslst = mklist(lhs)

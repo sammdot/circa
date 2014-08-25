@@ -17,8 +17,7 @@ class Client:
 			"port": 6667,
 			"autorejoin": True,
 			"autoconn": True,
-			"channels": [],
-			"prefixes": "&#"
+			"channels": []
 		}
 
 		self.conf.update(conf)
@@ -73,6 +72,8 @@ class Client:
 	def say(self, to, msg):
 		"""Send a message to a user/channel."""
 		self.send("PRIVMSG", to, ":" + msg)
+		if any([to.startswith(i) for i in self.server.types]):
+			self.channels[to[1:]].users[self.nick].messages.append(msg)
 	
 	def notice(self, to, msg):
 		"""Send a notice to a user/channel."""

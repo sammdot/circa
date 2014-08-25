@@ -35,7 +35,7 @@ class Client:
 
 		if self.conf["autoconn"]:
 			threading.Thread(name="main", target=self.connect).start()
-	
+
 	def connect(self):
 		"""Attempt to connect to the server. Log in if successful."""
 
@@ -57,7 +57,7 @@ class Client:
 			logging.error("Cannot connect to %s: %s", self.conf["server"], e)
 			self.sock.close()
 			self.sock = None
-	
+
 	def send(self, *msg):
 		"""Send a raw message to the server."""
 
@@ -68,32 +68,32 @@ class Client:
 		message = " ".join(map(str, msg))
 		self.sock.sendall(bytes(message + "\r\n", "utf-8"))
 		logging.debug("(%s) %s", threading.current_thread().name, message.rstrip())
-	
+
 	def say(self, to, msg):
 		"""Send a message to a user/channel."""
 		self.send("PRIVMSG", to, ":" + msg)
 		if any([to.startswith(i) for i in self.server.types]):
 			self.channels[to[1:]].users[self.nick].messages.append(msg)
-	
+
 	def notice(self, to, msg):
 		"""Send a notice to a user/channel."""
 		self.send("NOTICE", to, ":" + msg)
-	
+
 	def ctcp_say(self, to, text):
 		"""Send a CTCP PRIVMSG message."""
 		self.say(to, "\x01{0}\x01".format(text))
-	
+
 	def ctcp_notice(self, to, text):
 		"""Send a CTCP NOTICE message."""
 		self.notice(to, "\x01{0}\x01".format(text))
-	
+
 	def action(self, to, msg):
 		self.ctcp_say(to, "ACTION {0}".format(msg))
-	
+
 	def join(self, chan):
 		"""Join a channel."""
 		self.send("JOIN", chan)
-	
+
 	def part(self, chan, reason=None):
 		self.send("PART", chan, ":" + (reason or ""))
 
@@ -119,25 +119,25 @@ class Client:
 				self.sock.close()
 				self.sock = None
 				break
-	
+
 	def add_listener(self, event, fn):
 		"""Add a function to listen for the specified event."""
 		if event not in self.listeners:
 			self.listeners[event] = []
 		self.listeners[event].append(fn)
-	
+
 	def remove_listener(self, event, fn):
 		"""Remove a function as a listener from the specified event."""
 		if event not in self.listeners:
 			return
 		self.listeners[event] = [l for l in self.listeners[event] if l != fn]
-	
+
 	def remove_listeners(self, event):
 		"""Remove all functions listening for the specified event."""
 		if event not in self.listeners:
 			return
 		self.listeners.pop(event)
-	
+
 	def emit(self, event, *params):
 		"""Emit an event, and call all functions listening for it."""
 		if event in self.listeners:

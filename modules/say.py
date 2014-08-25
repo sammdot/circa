@@ -1,3 +1,5 @@
+from util.esc import unescape
+
 class SayModule:
 	require = "cmd"
 
@@ -9,6 +11,6 @@ class SayModule:
 
 	def say(self, fr, to, msg, m):
 		if self.circa.is_admin(m.prefix):
-			self.circa.say(to, msg)
+			self.circa.say(to, unescape(msg))
 
 module = SayModule

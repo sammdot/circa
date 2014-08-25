@@ -43,11 +43,7 @@ class Circa(client.Client):
 			client.Client.say(self, to, line)
 
 	def registered(self, nick, m):
-		self.send("UMODE2", "+B")
-		if "password" in self.conf:
-			self.send("PRIVMSG", "NickServ", "IDENTIFY {0}".format(
-					str(self.conf["password"])))
-		time.sleep(1)
+		self.send("MODE", nick, "+B")
 		for chan in self.conf["channels"]:
 			self.join("#" + chan)
 		self.server.admins = set(map(nicklower, self.conf["admins"]))

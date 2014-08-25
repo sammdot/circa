@@ -64,6 +64,7 @@ def parse_args():
 			cp = configparser.ConfigParser(delimiters=("=",), allow_no_value=True)
 			cp.read_file(f)
 			conf.update(cp["server"])
+			conf["port"] = int(conf["port"])
 			conf.update(cp["bot"])
 			conf["channels"] = list(cp["channels"].keys())
 			conf["modules"] = list(cp["modules"].keys())

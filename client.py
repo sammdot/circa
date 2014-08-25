@@ -17,8 +17,7 @@ class Client:
 			"port": 6667,
 			"autorejoin": True,
 			"autoconn": True,
-			"channels": [],
-			"prefixes": "&#"
+			"channels": []
 		}
 
 		self.conf.update(conf)
@@ -48,6 +47,8 @@ class Client:
 			logging.info("Connected to %s", self.server.host)
 
 			self.send("NICK", self.conf["nick"])
+			if "password" in self.conf:
+				self.send("PASS", self.conf["password"])
 			self.send("USER", self.conf["username"], 8, "*", \
 				self.conf["realname"])
 
@@ -71,6 +72,8 @@ class Client:
 	def say(self, to, msg):
 		"""Send a message to a user/channel."""
 		self.send("PRIVMSG", to, ":" + msg)
+		if any([to.startswith(i) for i in self.server.types]):
+			self.channels[to[1:]].users[self.nick].messages.append(msg)
 	
 	def notice(self, to, msg):
 		"""Send a notice to a user/channel."""
@@ -246,6 +249,8 @@ class Client:
 			nick = msg.params[0]
 			if nickeq(msg.nick, self.nick):
 				self.nick = nicklower(nick)
+			elif nickeq(msg.nick, nick):
+				return
 			chans = list(filter(lambda c: msg.nick in c, self.channels.values()))
 			for chan in chans:
 				chan.users[nick] = chan.users[msg.nick]
@@ -334,12 +339,12 @@ class Client:
 		elif c == "PRIVMSG":
 			fr, to = nicklower(msg.nick), nicklower(msg.params[0])
 			text = " ".join(msg.params[1:])
+			if to[0] in self.server.types:
+				self.channels[to[1:]].users[fr].messages.append(text)
 			if text[0] == "\x01" and "\x01" in text[1:]:
 				self._ctcp(fr, to, text, "privmsg")
 			else:
 				self.emit("message", fr, to, text, msg)
-				if to[0] in self.server.types:
-					self.channels[to[1:]].users[fr].messages.append(text)
 		elif c == "INVITE":
 			self.emit("invite", msg.params[1], nicklower(msg.nick), msg)
 		elif c == "QUIT":

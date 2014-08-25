@@ -96,7 +96,7 @@ class SedModule:
 			if search:
 				msgs = [line for line in msgs if search.lower() in line.lower()]
 			lhslst = mklist(lhs)
-			rhslst = unescape(mklist(rhs.replace("\\/", "/")))
+			rhslst = unescape(mklist(rhs.replace("\\/", "/")).replace("\\", "\\\\"))
 			find = [c for c in all if c not in lhslst] if "c" in flags else lhslst
 			msgs = [line for line in msgs if len(set(line) & set(find))]
 			if len(msgs):

@@ -249,6 +249,8 @@ class Client:
 			nick = msg.params[0]
 			if nickeq(msg.nick, self.nick):
 				self.nick = nicklower(nick)
+			elif nickeq(msg.nick, nick):
+				return
 			chans = list(filter(lambda c: msg.nick in c, self.channels.values()))
 			for chan in chans:
 				chan.users[nick] = chan.users[msg.nick]

@@ -6,6 +6,7 @@ class ShellModule:
 		self.events = {
 			"message": [self.shell]
 		}
+		self.docs = "Any message beginning with '$ ' executes bash code. Admins only."
 
 	def shell(self, fr, to, msg, m):
 		if msg.startswith("$ ") and self.circa.is_admin(m.prefix):

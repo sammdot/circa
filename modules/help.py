@@ -17,7 +17,8 @@ class HelpModule:
 				commands = sorted(module.docs.keys())
 				self.circa.say(to, "Available commands: " + " ".join(commands))
 			else: # command
-				pass
+				command = module.docs[c[1]]
+				self.circa.say(to, self.circa.conf["prefix"] + command)
 		else:
 			modules = sorted([i for i in self.circa.modules.keys() if \
 				hasattr(self.circa.modules[i], "docs")])

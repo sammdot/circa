@@ -14,8 +14,12 @@ class HelpModule:
 			c = msg.split(".", 1)
 			module = self.circa.modules[c[0]]
 			if len(c) == 1: # module
-				commands = sorted(module.docs.keys())
-				self.circa.say(to, "Available commands: " + " ".join(commands))
+				if isinstance(module.docs, dict):
+					commands = sorted(module.docs.keys())
+					self.circa.say(to, "Available commands: " + " ".join(commands))
+				else:
+					# in this case the module likely doesn't offer plain commands
+					self.circa.say(to, str(module.docs))
 			else: # command
 				command = module.docs[c[1]]
 				self.circa.say(to, self.circa.conf["prefix"] + command)

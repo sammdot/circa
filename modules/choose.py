@@ -8,6 +8,10 @@ class ChooseModule:
 			"message": [self.dotchoose],
 			"cmd.choose": [self.choose]
 		}
+		self.docs = {
+			"choose": "choose <option>, <option>, ... → choose a random <option>",
+			"roll": "roll [[a]d[b]] → roll 'a' 'b'-sided dice (default 1d6)"
+		}
 
 	def roll(self, fr, to, msg, m):
 		a, b = 1, 6

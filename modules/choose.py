@@ -32,8 +32,7 @@ class ChooseModule:
 
 	def dotchoose(self, fr, to, msg, m):
 		target = fr if to == self.circa.nick else to
-		cmd, opts = msg.split(" ", 1)
-		if cmd == ".choose":
-			self.choose(fr, target, opts, m)
+		if msg.startswith(".choose"):
+			self.choose(fr, target, msg[len(".choose"):], m)
 
 module = ChooseModule

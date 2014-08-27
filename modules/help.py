@@ -9,6 +9,12 @@ class HelpModule:
 		}
 
 	def help(self, fr, to, msg, m):
-		pass
+		print(msg)
+		msg = msg.split(" ", 1)
+		if msg:
+			...
+		else:
+			modules = [i for i in self.circa.modules.keys()	if hasattr(self.circa.modules[i], "docs")]
+			self.circa.say(to, "Available modules: " + " ".join(modules))
 
 module = HelpModule

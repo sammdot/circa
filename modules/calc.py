@@ -10,8 +10,11 @@ class CalcModule:
 
 		self.events = {
 			"cmd.dc": [self.dc],
-			"cmd.dc!": [self.dc1],
-			"cmd.bc": [self.bc]
+			"cmd.dc!": [self.dc1]
+		}
+		self.docs = {
+			"dc": "dc <expression> → execute the expression as a 'dc' command and print the result",
+			"dc!": "dc! <expression> → execute the expression as a 'dc' command"
 		}
 	
 	def dc(self, fr, to, expr, m):
@@ -24,14 +27,6 @@ class CalcModule:
 		expr = re.sub(r"\b_\b", str(self.contexts[to]), expr)
 		expr += "q\n"
 		self.contexts[to] = str(subprocess.check_output(["dc", "-"],
-			input=bytes(expr, "utf-8"), stderr=subprocess.STDOUT), "utf-8")
-		self.circa.say(to, str(self.contexts[to]))
-
-	def bc(self, fr, to, expr, m):
-		if to not in self.contexts:
-			self.contexts[to] = None
-		expr = re.sub(r"\b_\b", str(self.contexts[to]), expr) + ";\n"
-		self.contexts[to] = str(subprocess.check_output(["bc", "-l"],
 			input=bytes(expr, "utf-8"), stderr=subprocess.STDOUT), "utf-8")
 		self.circa.say(to, str(self.contexts[to]))
 

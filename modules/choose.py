@@ -28,6 +28,8 @@ class ChooseModule:
 
 	def choose(self, fr, to, msg, m):
 		opts = [opt.strip() for opt in msg.split(",")]
+		if len(opts) <= 1:
+			return
 		self.circa.say(to, fr + ": " + random.choice(opts))
 
 	def dotchoose(self, fr, to, msg, m):

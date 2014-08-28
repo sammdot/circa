@@ -9,23 +9,26 @@ class HelpModule:
 		}
 
 	def help(self, fr, to, msg, m):
+		pfx = self.circa.conf["prefix"]
 		msg = msg.split(" ", 1)[0]
 		if msg:
 			c = msg.split(".", 1)
 			module = self.circa.modules[c[0]]
 			if len(c) == 1: # module
 				if isinstance(module.docs, dict):
-					commands = sorted(module.docs.keys())
-					self.circa.say(to, "Available commands: " + " ".join(commands))
+					commands = sorted([pfx + cmd for cmd in module.docs.keys()])
+					self.circa.notice(fr, "Available commands: " + ", ".join(commands))
+					self.circa.notice(fr, "Type {0}help {1}.<command> for command help.".format(pfx, c[0]))
 				else:
 					# in this case the module likely doesn't offer plain commands
-					self.circa.say(to, str(module.docs))
+					self.circa.notice(fr, str(module.docs))
 			else: # command
 				command = module.docs[c[1]]
-				self.circa.say(to, self.circa.conf["prefix"] + command)
+				self.circa.notice(fr, pfx + command)
 		else:
 			modules = sorted([i for i in self.circa.modules.keys() if \
 				hasattr(self.circa.modules[i], "docs")])
-			self.circa.say(to, "Available modules: " + " ".join(modules))
+			self.circa.notice(fr, "Available modules: " + ", ".join(modules))
+			self.circa.notice(fr, "Type {0}help <module> for a list of commands.".format(pfx))
 
 module = HelpModule

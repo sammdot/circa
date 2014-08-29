@@ -43,6 +43,7 @@ class ReplModule:
 		self.events = {
 			"message": [self.handle_repl]
 		}
+		self.docs = "Any message beginning with '>>> ' executes Python code. Admins only."
 
 	def handle_repl(self, fr, to, text, m):
 		if text.startswith(">>> "):

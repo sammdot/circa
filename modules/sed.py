@@ -55,6 +55,10 @@ class SedModule:
 		self.events = {
 			"message": [self.sub, self.tr]
 		}
+		self.docs = "Performs sed's s/// and y/// functions.\n" \
+			"[<nick>: ][<search>/]s/<pattern>/<replacement>/[gixs] → performs s/// on the last line in nick's messages that matches the search pattern. Using Python-style regexes.\n" \
+			"[<nick>: ][<search>/]y/<set1>/<set2>/[cds] → performs y/// on the last line in nick's messages that matches the search pattern.\n" \
+			"See online docs for more info."
 
 	def sub(self, fr, to, msg, m):
 		match = self.subre.match(msg)
@@ -72,7 +76,7 @@ class SedModule:
 				if "i" in flags: f |= re.I
 				if "x" in flags: f |= re.X
 				if "s" in flags: f |= re.S
-				rhs = rhs.replace("\\/", "/")
+				rhs = rhs.replace("\\/", "/").replace("\\", "\\\\")
 				rhs = re.sub(r"(?<!\\)(\\)(?=\d+|g<\w+>)", r"\\\\", rhs)
 				rhs = unescape(rhs)
 				count = int("g" not in flags)

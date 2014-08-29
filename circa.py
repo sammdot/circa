@@ -39,6 +39,7 @@ class Circa(client.Client):
 		self.connect()
 
 	def say(self, to, msg):
+		msg = msg.replace("\x07", "")
 		for line in msg.splitlines():
 			client.Client.say(self, to, line)
 

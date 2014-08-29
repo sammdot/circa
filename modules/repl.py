@@ -1,4 +1,5 @@
 import code
+import pathlib
 import sys
 
 from util.nick import nickeq, nicklower
@@ -27,8 +28,9 @@ class Repl(code.InteractiveConsole):
 
 	def showtraceback(self):
 		type, value, lasttb = sys.exc_info()
-		self.circa.say(self.channel, "\x02\x034{0}\x03\x02: {1}".format( \
-			type.__name__, value))
+		fname = pathlib.Path(lasttb.tb_frame.f_code.co_filename).name
+		self.circa.say(self.channel, "\x02\x034{0}\x03\x02: {1} ({2}:{3})".format( \
+			type.__name__, value, fname, lasttb.tb_lineno))
 
 	def showsyntaxerror(self, filename):
 		self.showtraceback()

@@ -7,9 +7,10 @@ import time
 
 from util.nick import nicklower
 from util.mask import match
+from version import version as v
 
 class Circa(client.Client):
-	modules = {}
+	version = "circa {0} http://github.com/sammdot/circa".format(".".join(map(str, v)))
 
 	def __init__(self, conf):
 		conf["autoconn"] = False
@@ -21,6 +22,7 @@ class Circa(client.Client):
 				exit(1)
 
 		self.cwd = conf["cwd"]
+		self.modules = {}
 
 		client.Client.__init__(self, **conf)
 		self.conf["admins"] = set(map(nicklower, self.conf["admins"]))
@@ -28,6 +30,7 @@ class Circa(client.Client):
 		logging.info("Registering callbacks")
 		self.add_listener("registered", self.registered)
 		self.add_listener("invite", self.invited)
+		self.add_listener("ctcp.version", self.ctcp_version)
 
 		logging.info("Loading modules")
 		sys.path.append(self.cwd)
@@ -51,6 +54,9 @@ class Circa(client.Client):
 
 	def invited(self, chan, by, m):
 		self.join(chan)
+
+	def ctcp_version(self, fr, to, m):
+		self.ctcp_notice(fr, "VERSION " + self.version)
 
 	def close(self):
 		self.send("QUIT")

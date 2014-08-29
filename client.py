@@ -1,5 +1,7 @@
 import logging
+import pathlib
 import socket
+import sys
 import threading
 
 from channel import Channel, ChannelList, User
@@ -140,6 +142,7 @@ class Client:
 
 	def emit(self, event, *params):
 		"""Emit an event, and call all functions listening for it."""
+		logging.debug("[{0}] '{1}'".format(event, "', '".join(map(str, params))))
 		if event in self.listeners:
 			for listener in self.listeners[event]:
 				try:
@@ -151,20 +154,25 @@ class Client:
 				except TypeError as e:
 					logging.error("(%s) invalid number of parameters [%s]",
 						threading.current_thread().name, listener.__name__)
+				except:
+					type, value, lasttb = sys.exc_info()
+					fname = pathlib.Path(lasttb.tb_frame.f_code.co_filename).name
+					self.circa.say(self, channel, "\x02\x034{0}\x03\x02: {1} ({2}:{3})".format( \
+						type.__name__, value, fname, lasttb.tb_lineno))
 
 	def _ctcp(self, fr, to, text, type):
-		text = text[1:text.index("\x01")]
+		text = text.strip("\x01")
 		parts = text.split()
 		self.emit("ctcp", fr, to, text, type)
 		self.emit("ctcp." + type, fr, to, text)
 
 		if type == "privmsg":
-			if text == "VERSION":
-				self.emit("ctcp.version", fr, to, msg)
+			if parts[0] == "VERSION":
+				self.emit("ctcp.version", fr, to)
 			elif len(parts) > 1 and parts[0] == "ACTION":
-				self.emit("action", fr, to, " ".join(parts[1:]), msg)
+				self.emit("action", fr, to, " ".join(parts[1:]))
 			elif len(parts) > 1 and parts[0] == "PING":
-				self.ctcp_notice(fr, "PONG " + " ".join(parts[1:]), msg)
+				self.ctcp_notice(fr, "PONG " + " ".join(parts[1:]))
 
 	def handle(self, msg):
 		self.emit("raw", msg)

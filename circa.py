@@ -7,9 +7,10 @@ import time
 
 from util.nick import nicklower
 from util.mask import match
+from version import version as v
 
 class Circa(client.Client):
-	version = "circa 0.9 http://github.com/sammdot/circa"
+	version = "circa {0} http://github.com/sammdot/circa".format(".".join(map(str, v)))
 
 	def __init__(self, conf):
 		conf["autoconn"] = False

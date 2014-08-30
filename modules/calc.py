@@ -1,5 +1,26 @@
+import math
+import operator
 import re
 import subprocess
+
+class Calculator:
+	opers = [
+		{ # no operands
+			...
+		},
+		{ # 1 operand
+			"!": operator.not_,
+		},
+		{ # 2 operands
+			"+": operator.add, "-": operator.sub, "*": operator.mul,
+			"/": operator.div, "\\": operator.floordiv, "%": operator.mod,
+			"**": operator.pow, "^": operator.xor, "&": operator.and_,
+			"|": operator.or_,
+		}
+	]
+
+	def __init__(self):
+		stack = []
 
 class CalcModule:
 	require = "cmd"

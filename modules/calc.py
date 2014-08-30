@@ -33,6 +33,7 @@ class Calculator:
 		self.stack = []
 
 	def calc(self, expr):
+		self.stack = []
 		for token in expr.split():
 			if token in self.opers[0]:
 				self.stack.append(self.opers[0][token]())
@@ -62,25 +63,41 @@ class CalcModule:
 		self.contexts = {}
 
 		self.events = {
-			"cmd.dc": [self.dc],
-			"cmd.dc!": [self.dc1]
+			"cmd.calc": [self.calc],
+			"cmd.bcalc": [self.bcalc],
+			"cmd.ocalc": [self.ocalc],
+			"cmd.hcalc": [self.hcalc],
 		}
 		self.docs = {
-			"dc": "dc <expression> → execute the expression as a 'dc' command and print the result",
-			"dc!": "dc! <expression> → execute the expression as a 'dc' command"
+			"calc": "calc [expr] → evaluate the postfix expression. More info in the online docs.",
+			"bcalc": "bcalc [expr] → like calc, but returns answers in binary",
+			"ocalc": "ocalc [expr] → like calc, but returns answers in octal",
+			"hcalc": "hcalc [expr] → like calc, but returns answers in hexadecimal",
 		}
-	
-	def dc(self, fr, to, expr, m):
-		expr = re.sub(r"-([0-9])", r"_\1", expr)
-		self.dc1(fr, to, expr + " p")
 
-	def dc1(self, fr, to, expr, m):
-		if to not in self.contexts:
-			self.contexts[to] = None
-		expr = re.sub(r"\b_\b", str(self.contexts[to]), expr)
-		expr += "q\n"
-		self.contexts[to] = str(subprocess.check_output(["dc", "-"],
-			input=bytes(expr, "utf-8"), stderr=subprocess.STDOUT), "utf-8")
-		self.circa.say(to, str(self.contexts[to]))
+	def ensure_context(self, chan):
+		if chan not in self.contexts:
+			self.contexts[chan] = Calculator()
+
+	def _calc(self, to, expr):
+		self.ensure_context(to)
+		self.contexts[to].calc(expr)
+		return self.contexts[to].stack
+
+	def calc(self, fr, to, expr, m):
+		results = self._calc(to, expr)
+		self.circa.say(to, fr + ": " + ", ".join(map(str, results)))
+
+	def bcalc(self, fr, to, expr, m):
+		results = map(lambda x: return bin(x)[2:] + "b", self._calc(to, expr))
+		self.circa.say(to, fr + ": " + ", ".join(map(str, results)))
+
+	def ocalc(self, fr, to, expr, m):
+		results = map(lambda x: return oct(x)[2:] + "o", self._calc(to, expr))
+		self.circa.say(to, fr + ": " + ", ".join(map(str, results)))
+
+	def hcalc(self, fr, to, expr, m):
+		results = map(lambda x: return hex(x)[2:] + "h", self._calc(to, expr))
+		self.circa.say(to, fr + ": " + ", ".join(map(str, results)))
 
 module = CalcModule

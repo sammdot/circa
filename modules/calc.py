@@ -67,9 +67,9 @@ class Calculator:
 			elif token in self.opers_:
 				self.opers_[token](self)
 			elif len(token.split("/")) == 2:
-				l, r = *token.split("/")
+				t = token.split("/")
 				try:
-					self.stack.append(int(l) / int(r))
+					self.stack.append(int(t[0]) / int(t[1]))
 				except ValueError:
 					pass
 			else:

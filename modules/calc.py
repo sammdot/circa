@@ -1,6 +1,7 @@
 import functools
 import math
 import operator
+import random
 import re
 
 class Calculator:
@@ -32,6 +33,7 @@ class Calculator:
 		"@+": lambda self: self.sum(),
 		"@*": lambda self: self.product(),
 		"->": lambda self: self.range(),
+		"d": lambda self: self.random(),
 	}
 	bases = {"b": 2, "o": 8, "h": 16}
 
@@ -49,6 +51,9 @@ class Calculator:
 	def range(self):
 		to, fr = self.stack.pop(), self.stack.pop()
 		self.stack.extend(range(fr, to + 1) if to > fr else range(to, fr + 1)[::-1])
+	def random(self):
+		b, a = self.stack.pop(), self.stack.pop()
+		self.stack.extend([random.randint(1, b) for i in range(a)])
 
 	def calc(self, expr):
 		self.stack = []

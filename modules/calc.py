@@ -102,7 +102,7 @@ class CalcModule:
 		self.circa.say(to, fr + ": " + ", ".join(map(str, results)))
 
 	def hcalc(self, fr, to, expr, m):
-		results = map(lambda x: hex(x)[2:] + "h", self._calc(to, expr))
+		results = map(lambda x: hex(x)[2:].upper() + "h", self._calc(to, expr))
 		self.circa.say(to, fr + ": " + ", ".join(map(str, results)))
 
 module = CalcModule

@@ -26,8 +26,8 @@ class Calculator:
 	]
 	opers_ = {
 		"_": lambda self: self.stack[-1],
-		"@<": lambda self: self.sort(),
-		"@>": lambda self: self.sort(True),
+		"@>": lambda self: self.sort(),
+		"@<": lambda self: self.sort(True),
 	}
 	bases = {"b": 2, "o": 8, "h": 16}
 

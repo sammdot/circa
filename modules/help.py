@@ -13,7 +13,12 @@ class HelpModule:
 		msg = msg.split(" ", 1)[0]
 		if msg:
 			c = msg.split(".", 1)
+			if c[0] not in self.circa.modules:
+				self.circa.notice(fr, "Module {0} doesn't exist or is not loaded".format(c[0]))
+				return
 			module = self.circa.modules[c[0]]
+			if not hasattr(module, "docs"):
+				self.circa.notice(fr, "No help available for module {0}".format(c[0]))
 			if len(c) == 1: # module
 				if isinstance(module.docs, dict):
 					commands = sorted([pfx + cmd for cmd in module.docs.keys()])
@@ -23,6 +28,12 @@ class HelpModule:
 					# in this case the module likely doesn't offer plain commands
 					self.circa.notice(fr, str(module.docs))
 			else: # command
+				if "cmd." + c[1] not in module.events:
+					self.circa.notice(fr, "No command {0}{1} in module {2}".format(pfx, c[1], c[0]))
+					return
+				if c[1] not in module.docs:
+					self.circa.notice(fr, "No help for {0}{1} in module {2}".format(pfx, c[1], c[0]))
+					return
 				command = module.docs[c[1]]
 				self.circa.notice(fr, pfx + command)
 		else:

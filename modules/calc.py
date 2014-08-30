@@ -57,6 +57,12 @@ class Calculator:
 				self.stack[-2:] = [self.opers[2][token](*self.stack[-2:])]
 			elif token in self.opers_:
 				self.opers_[token](self)
+			elif len(token.split("/")) == 2:
+				l, r = *token.split("/")
+				try:
+					self.stack.append(int(l) / int(r))
+				except ValueError:
+					pass
 			else:
 				try:
 					val = None

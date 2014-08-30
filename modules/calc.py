@@ -24,6 +24,7 @@ class Calculator:
 			"|": operator.or_,
 		}
 	]
+	bases = {"b": 2, "o": 8, "h": 16}
 
 	def __init__(self):
 		self.stack = []
@@ -38,7 +39,12 @@ class Calculator:
 				self.stack[-2:] = [self.opers[2][token](*self.stack[-2:])]
 			else:
 				try:
-					self.stack.append(float(token))
+					val = None
+					if token[-1] in "boh":
+						val = int(token[:-1], self.bases[token[-1]])
+					else:
+						val = float(token)
+					self.stack.append(val)
 				except ValueError:
 					pass
 

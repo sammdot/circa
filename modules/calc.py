@@ -4,23 +4,37 @@ import re
 import subprocess
 
 class Calculator:
+	"""A postfix calculator engine."""
 	opers = [
 		{ # no operands
-			...
 		},
 		{ # 1 operand
 			"!": operator.not_,
 		},
 		{ # 2 operands
 			"+": operator.add, "-": operator.sub, "*": operator.mul,
-			"/": operator.div, "\\": operator.floordiv, "%": operator.mod,
+			"/": operator.truediv, "\\": operator.floordiv, "%": operator.mod,
 			"**": operator.pow, "^": operator.xor, "&": operator.and_,
 			"|": operator.or_,
 		}
 	]
 
 	def __init__(self):
-		stack = []
+		self.stack = []
+
+	def calc(self, expr):
+		for token in expr.split():
+			if token in self.opers[0]:
+				self.stack.append(self.opers[0][token]())
+			elif token in self.opers[1]:
+				self.stack.append(self.opers[1][token](self.stack.pop()))
+			elif token in self.opers[2]:
+				self.stack[-2:] = [self.opers[2][token](*self.stack[-2:])]
+			else:
+				try:
+					self.stack.append(float(token))
+				except ValueError:
+					pass
 
 class CalcModule:
 	require = "cmd"

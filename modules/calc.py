@@ -1,7 +1,7 @@
+import functools
 import math
 import operator
 import re
-import subprocess
 
 class Calculator:
 	"""A postfix calculator engine."""
@@ -29,6 +29,8 @@ class Calculator:
 		"_": lambda self: self.stack[-1],
 		"@>": lambda self: self.sort(),
 		"@<": lambda self: self.sort(True),
+		"@+": lambda self: self.sum(),
+		"@*": lambda self: self.product(),
 	}
 	bases = {"b": 2, "o": 8, "h": 16}
 
@@ -37,6 +39,10 @@ class Calculator:
 
 	def sort(self, rev=False):
 		self.stack = sorted(self.stack, reverse=rev)
+	def sum(self):
+		self.stack = [sum(self.stack)]
+	def product(self):
+		self.stack = [reduce(operator.mul, self.stack, 1)]
 
 	def calc(self, expr):
 		self.stack = []

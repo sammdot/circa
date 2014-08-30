@@ -79,10 +79,11 @@ class Calculator:
 						val = int(token[:-1], self.bases[token[-1]])
 					else:
 						val = float(token)
+						if float.is_integer(val):
+							val = int(val)
 					self.stack.append(val)
 				except ValueError:
 					pass
-		self.stack = [int(i) if float.is_integer(float(i)) else i for i in self.stack]
 
 class CalcModule:
 	require = "cmd"

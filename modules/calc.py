@@ -26,7 +26,7 @@ class Calculator:
 		}
 	]
 	opers_ = {
-		"_": lambda self: self.stack[-1],
+		"_": lambda self: self.stack.append(self.stack[-1]),
 		"@>": lambda self: self.sort(),
 		"@<": lambda self: self.sort(True),
 		"@+": lambda self: self.sum(),
@@ -54,7 +54,7 @@ class Calculator:
 			elif token in self.opers[2]:
 				self.stack[-2:] = [self.opers[2][token](*self.stack[-2:])]
 			elif token in self.opers_:
-				self.stack.append(self.opers_[token](self))
+				self.opers_[token](self)
 			else:
 				try:
 					val = None

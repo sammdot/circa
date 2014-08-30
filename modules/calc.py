@@ -7,9 +7,15 @@ class Calculator:
 	"""A postfix calculator engine."""
 	opers = [
 		{ # no operands
+			"e": math.e, "pi": math.pi, "i": lambda: 1j
 		},
 		{ # 1 operand
-			"!": operator.not_,
+			"~": lambda x: ~x, "sqrt": math.sqrt, "ln": math.log, "log": math.log10,
+			"sin": math.sin, "cos": math.cos, "tan": math.tan, "exp": math.exp,
+			"asin": math.asin, "acos": math.acos, "atan": math.atan,
+			"rad": math.radians, "deg": math.degrees, "floor": math.floor,
+			"ceil": math.ceil, "abs": math.fabs, "!": math.factorial,
+			"1/x": lambda x: 1/x, "inv": lambda x: 1/x,
 		},
 		{ # 2 operands
 			"+": operator.add, "-": operator.sub, "*": operator.mul,

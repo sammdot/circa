@@ -21,16 +21,21 @@ class Calculator:
 			"+": operator.add, "-": operator.sub, "*": operator.mul,
 			"/": operator.truediv, "\\": operator.floordiv, "%": operator.mod,
 			"**": operator.pow, "^": operator.xor, "&": operator.and_,
-			"|": operator.or_,
+			"|": operator.or_, ">>": operator.rshift, "<<": operator.lshift,
 		}
 	]
 	opers_ = {
 		"_": lambda self: self.stack[-1],
+		"@<": lambda self: self.sort(),
+		"@>": lambda self: self.sort(True),
 	}
 	bases = {"b": 2, "o": 8, "h": 16}
 
 	def __init__(self):
 		self.stack = []
+
+	def sort(self, rev=False):
+		self.stack = sorted(self.stack, reverse=rev)
 
 	def calc(self, expr):
 		self.stack = []

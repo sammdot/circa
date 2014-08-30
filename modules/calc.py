@@ -26,7 +26,7 @@ class Calculator:
 		}
 	]
 	opers_ = {
-		"_": lambda self: self.stack.append(self.stack[-1]),
+		"_": lambda self: self.dup(),
 		"@>": lambda self: self.sort(),
 		"@<": lambda self: self.sort(True),
 		"@+": lambda self: self.sum(),
@@ -37,12 +37,14 @@ class Calculator:
 	def __init__(self):
 		self.stack = []
 
+	def dup(self):
+		self.stack.append(self.stack[-1])
 	def sort(self, rev=False):
 		self.stack = sorted(self.stack, reverse=rev)
 	def sum(self):
 		self.stack = [sum(self.stack)]
 	def product(self):
-		self.stack = [reduce(operator.mul, self.stack, 1)]
+		self.stack = [functools.reduce(operator.mul, self.stack, 1)]
 
 	def calc(self, expr):
 		self.stack = []

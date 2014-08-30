@@ -89,15 +89,15 @@ class CalcModule:
 		self.circa.say(to, fr + ": " + ", ".join(map(str, results)))
 
 	def bcalc(self, fr, to, expr, m):
-		results = map(lambda x: return bin(x)[2:] + "b", self._calc(to, expr))
+		results = map(lambda x: bin(x)[2:] + "b", self._calc(to, expr))
 		self.circa.say(to, fr + ": " + ", ".join(map(str, results)))
 
 	def ocalc(self, fr, to, expr, m):
-		results = map(lambda x: return oct(x)[2:] + "o", self._calc(to, expr))
+		results = map(lambda x: oct(x)[2:] + "o", self._calc(to, expr))
 		self.circa.say(to, fr + ": " + ", ".join(map(str, results)))
 
 	def hcalc(self, fr, to, expr, m):
-		results = map(lambda x: return hex(x)[2:] + "h", self._calc(to, expr))
+		results = map(lambda x: hex(x)[2:] + "h", self._calc(to, expr))
 		self.circa.say(to, fr + ": " + ", ".join(map(str, results)))
 
 module = CalcModule

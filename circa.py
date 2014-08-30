@@ -46,6 +46,11 @@ class Circa(client.Client):
 		for line in msg.splitlines():
 			client.Client.say(self, to, line)
 
+	def notice(self, to, msg):
+		msg = msg.replace("\x07", "")
+		for line in msg.splitlines():
+			client.Client.notice(self, to, line)
+
 	def registered(self, nick, m):
 		self.send("MODE", nick, "+B")
 		for chan in self.conf["channels"]:
@@ -55,7 +60,7 @@ class Circa(client.Client):
 	def invited(self, chan, by, m):
 		self.join(chan)
 
-	def ctcp_version(self, fr, to, m):
+	def ctcp_version(self, fr, to):
 		self.ctcp_notice(fr, "VERSION " + self.version)
 
 	def close(self):

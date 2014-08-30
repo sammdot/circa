@@ -3,6 +3,7 @@ import math
 import operator
 import random
 import re
+import time
 
 class Calculator:
 	"""A postfix calculator engine."""

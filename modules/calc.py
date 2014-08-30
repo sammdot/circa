@@ -31,6 +31,7 @@ class Calculator:
 		"@<": lambda self: self.sort(True),
 		"@+": lambda self: self.sum(),
 		"@*": lambda self: self.product(),
+		"->": lambda self: self.range(),
 	}
 	bases = {"b": 2, "o": 8, "h": 16}
 
@@ -45,6 +46,9 @@ class Calculator:
 		self.stack = [sum(self.stack)]
 	def product(self):
 		self.stack = [functools.reduce(operator.mul, self.stack, 1)]
+	def range(self):
+		to, fr = self.stack.pop(), self.stack.pop()
+		self.stack.extend(range(fr, to + 1) if to > fr else range(to, fr + 1)[::-1])
 
 	def calc(self, expr):
 		self.stack = []

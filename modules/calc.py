@@ -24,6 +24,9 @@ class Calculator:
 			"|": operator.or_,
 		}
 	]
+	opers_ = {
+		"_": lambda self: self.stack[-1],
+	}
 	bases = {"b": 2, "o": 8, "h": 16}
 
 	def __init__(self):
@@ -37,6 +40,8 @@ class Calculator:
 				self.stack.append(self.opers[1][token](self.stack.pop()))
 			elif token in self.opers[2]:
 				self.stack[-2:] = [self.opers[2][token](*self.stack[-2:])]
+			elif token in self.opers_:
+				self.stack.append(self.opers_[token](self))
 			else:
 				try:
 					val = None

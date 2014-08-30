@@ -1,6 +1,7 @@
 import functools
 import math
 import operator
+import random
 import re
 
 class Calculator:
@@ -31,6 +32,8 @@ class Calculator:
 		"@<": lambda self: self.sort(True),
 		"@+": lambda self: self.sum(),
 		"@*": lambda self: self.product(),
+		"->": lambda self: self.range(),
+		"d": lambda self: self.random(),
 	}
 	bases = {"b": 2, "o": 8, "h": 16}
 
@@ -45,6 +48,12 @@ class Calculator:
 		self.stack = [sum(self.stack)]
 	def product(self):
 		self.stack = [functools.reduce(operator.mul, self.stack, 1)]
+	def range(self):
+		to, fr = self.stack.pop(), self.stack.pop()
+		self.stack.extend(range(fr, to + 1) if to > fr else range(to, fr + 1)[::-1])
+	def random(self):
+		b, a = self.stack.pop(), self.stack.pop()
+		self.stack.extend([random.randint(1, b) for i in range(a)])
 
 	def calc(self, expr):
 		self.stack = []
@@ -57,6 +66,12 @@ class Calculator:
 				self.stack[-2:] = [self.opers[2][token](*self.stack[-2:])]
 			elif token in self.opers_:
 				self.opers_[token](self)
+			elif len(token.split("/")) == 2:
+				l, r = *token.split("/")
+				try:
+					self.stack.append(int(l) / int(r))
+				except ValueError:
+					pass
 			else:
 				try:
 					val = None

@@ -52,6 +52,7 @@ class Calculator:
 					self.stack.append(val)
 				except ValueError:
 					pass
+		self.stack = [int(i) for i in self.stack if float.is_integer(float(i))]
 
 class CalcModule:
 	require = "cmd"

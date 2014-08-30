@@ -46,6 +46,11 @@ class Circa(client.Client):
 		for line in msg.splitlines():
 			client.Client.say(self, to, line)
 
+	def notice(self, to, msg):
+		msg = msg.replace("\x07", "")
+		for line in msg.splitlines():
+			client.Client.notice(self, to, line)
+
 	def registered(self, nick, m):
 		self.send("MODE", nick, "+B")
 		for chan in self.conf["channels"]:

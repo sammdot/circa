@@ -7,7 +7,7 @@ class Calculator:
 	"""A postfix calculator engine."""
 	opers = [
 		{ # no operands
-			"e": math.e, "pi": math.pi, "i": lambda: 1j
+			"e": lambda: math.e, "pi": lambda: math.pi, "i": lambda: 1j
 		},
 		{ # 1 operand
 			"~": lambda x: ~x, "sqrt": math.sqrt, "ln": math.log, "log": math.log10,

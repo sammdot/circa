@@ -20,6 +20,9 @@ class ChooseModule:
 			l, r = msg[0].split("d")
 			try:
 				a = int(l)
+			except ValueError:
+				pass
+			try:
 				b = int(r)
 			except ValueError:
 				pass

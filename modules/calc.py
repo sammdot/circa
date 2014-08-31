@@ -5,11 +5,15 @@ import random
 import re
 import time
 
+class StackUnderflow(Exception):
+	pass
+
 class Calculator:
 	"""A postfix calculator engine."""
 	opers = [
 		{ # no operands
 			"time": lambda: int(time.time()),
+			"rand": lambda: random.random(),
 			"e": lambda: math.e, "pi": lambda: math.pi, "i": lambda: 1j
 		},
 		{ # 1 operand
@@ -34,12 +38,15 @@ class Calculator:
 		"@+": lambda self: self.sum(),
 		"@*": lambda self: self.product(),
 		"->": lambda self: self.range(),
-		"d": lambda self: self.random(),
+		"d": lambda self: self.diceroll(),
+		"(": lambda self: self.begstack(),
+		")": lambda self: self.endstack(),
 	}
 	bases = {"b": 2, "o": 8, "h": 16, "x": 16}
 
 	def __init__(self):
 		self.stack = []
+		self.stackstack = []
 
 	def dup(self):
 		self.stack.append(self.stack[-1])
@@ -52,18 +59,33 @@ class Calculator:
 	def range(self):
 		to, fr = self.stack.pop(), self.stack.pop()
 		self.stack.extend(range(fr, to + 1) if to > fr else range(to, fr + 1)[::-1])
-	def random(self):
+	def diceroll(self):
 		b, a = self.stack.pop(), self.stack.pop()
 		self.stack.extend([random.randint(1, b) for i in range(a)])
 
+	def begstack(self):
+		self.stackstack.append(self.stack)
+		self.stack = []
+	def endstack(self):
+		if len(self.stackstack) == 0:
+			raise StackUnderflow
+		self.stack.extend(self.stackstack.pop())
+
 	def calc(self, expr):
 		self.stack = []
+		self.stackstack = []
 		for token in expr.split():
 			if token in self.opers[0]:
 				self.stack.append(self.opers[0][token]())
 			elif token in self.opers[1]:
+				if len(self.stack) == 0:
+					self.stack = None
+					raise StackUnderflow
 				self.stack.append(self.opers[1][token](self.stack.pop()))
 			elif token in self.opers[2]:
+				if len(self.stack) < 2:
+					self.stack = None
+					raise StackUnderflow
 				self.stack[-2:] = [self.opers[2][token](*self.stack[-2:])]
 			elif token in self.opers_:
 				self.opers_[token](self)
@@ -87,7 +109,8 @@ class Calculator:
 					self.stack.append(val)
 				except ValueError:
 					pass
-		self.stack = [int(i) if float(i).is_integer() else i for i in self.stack]
+		self.stack = [int(i) if not isinstance(i, complex) and \
+			float(i).is_integer() else i for i in self.stack]
 
 class CalcModule:
 	require = "cmd"
@@ -115,23 +138,33 @@ class CalcModule:
 
 	def _calc(self, to, expr):
 		self.ensure_context(to)
-		self.contexts[to].calc(expr)
-		return self.contexts[to].stack
+		try:
+			self.contexts[to].calc(expr)
+		except ZeroDivisionError:
+			self.circa.say(to, "\x0304\x02Error\x02\x03: Division by zero")
+			return []
+		except StackUnderflow:
+			self.circa.say(to, "\x0304\x02Error\x02\x03: Stack underflow")
+		return self.contexts[to].stack or []
 
 	def calc(self, fr, to, expr, m):
 		results = self._calc(to, expr)
-		self.circa.say(to, fr + ": " + ", ".join(map(str, results)))
+		if results:
+			self.circa.say(to, fr + ": " + ", ".join(map(str, results)))
 
 	def bcalc(self, fr, to, expr, m):
 		results = map(lambda x: bin(x)[2:] + "b", self._calc(to, expr))
-		self.circa.say(to, fr + ": " + ", ".join(map(str, results)))
+		if results:
+			self.circa.say(to, fr + ": " + ", ".join(map(str, results)))
 
 	def ocalc(self, fr, to, expr, m):
 		results = map(lambda x: oct(x)[2:] + "o", self._calc(to, expr))
-		self.circa.say(to, fr + ": " + ", ".join(map(str, results)))
+		if results:
+			self.circa.say(to, fr + ": " + ", ".join(map(str, results)))
 
 	def hcalc(self, fr, to, expr, m):
 		results = map(lambda x: hex(x)[2:].upper() + "h", self._calc(to, expr))
-		self.circa.say(to, fr + ": " + ", ".join(map(str, results)))
+		if results:
+			self.circa.say(to, fr + ": " + ", ".join(map(str, results)))
 
 module = CalcModule

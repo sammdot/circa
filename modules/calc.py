@@ -36,7 +36,7 @@ class Calculator:
 		"->": lambda self: self.range(),
 		"d": lambda self: self.random(),
 	}
-	bases = {"b": 2, "o": 8, "h": 16}
+	bases = {"b": 2, "o": 8, "h": 16, "x": 16}
 
 	def __init__(self):
 		self.stack = []
@@ -76,8 +76,10 @@ class Calculator:
 			else:
 				try:
 					val = None
-					if token[-1] in "boh":
+					if token[-1] in self.bases:
 						val = int(token[:-1], self.bases[token[-1]])
+					elif len(token) > 2 and token[0] == "0" and token[1] in self.bases:
+						val = int(token[2:], self.bases[token[1]])
 					else:
 						val = float(token)
 						if val.is_integer():

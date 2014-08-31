@@ -63,8 +63,12 @@ class Calculator:
 			if token in self.opers[0]:
 				self.stack.append(self.opers[0][token]())
 			elif token in self.opers[1]:
+				if len(self.stack) == 0:
+					raise Exception
 				self.stack.append(self.opers[1][token](self.stack.pop()))
 			elif token in self.opers[2]:
+				if len(self.stack) < 2:
+					raise Exception
 				self.stack[-2:] = [self.opers[2][token](*self.stack[-2:])]
 			elif token in self.opers_:
 				self.opers_[token](self)
@@ -116,7 +120,12 @@ class CalcModule:
 
 	def _calc(self, to, expr):
 		self.ensure_context(to)
-		self.contexts[to].calc(expr)
+		try:
+			self.contexts[to].calc(expr)
+		except ZeroDivisionError:
+			self.circa.say("\x0304\x02Error\x02\x03: Division by zero")
+		except:
+			self.circa.say("\x0304\x02Error\x02\x03: Stack underflow")
 		return self.contexts[to].stack
 
 	def calc(self, fr, to, expr, m):

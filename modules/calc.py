@@ -5,6 +5,9 @@ import random
 import re
 import time
 
+class StackUnderflow(Exception):
+	pass
+
 class Calculator:
 	"""A postfix calculator engine."""
 	opers = [
@@ -65,7 +68,7 @@ class Calculator:
 		self.stack = []
 	def endstack(self):
 		if len(self.stackstack) == 0:
-			raise Exception
+			raise StackUnderflow
 		self.stack.extend(self.stackstack.pop())
 
 	def calc(self, expr):
@@ -77,12 +80,12 @@ class Calculator:
 			elif token in self.opers[1]:
 				if len(self.stack) == 0:
 					self.stack = None
-					raise Exception
+					raise StackUnderflow
 				self.stack.append(self.opers[1][token](self.stack.pop()))
 			elif token in self.opers[2]:
 				if len(self.stack) < 2:
 					self.stack = None
-					raise Exception
+					raise StackUnderflow
 				self.stack[-2:] = [self.opers[2][token](*self.stack[-2:])]
 			elif token in self.opers_:
 				self.opers_[token](self)
@@ -106,7 +109,8 @@ class Calculator:
 					self.stack.append(val)
 				except ValueError:
 					pass
-		self.stack = [int(i) if float(i).is_integer() else i for i in self.stack]
+		self.stack = [int(i) if not isinstance(i, complex) and \
+			float(i).is_integer() else i for i in self.stack]
 
 class CalcModule:
 	require = "cmd"
@@ -139,7 +143,7 @@ class CalcModule:
 		except ZeroDivisionError:
 			self.circa.say(to, "\x0304\x02Error\x02\x03: Division by zero")
 			return []
-		except:
+		except StackUnderflow:
 			self.circa.say(to, "\x0304\x02Error\x02\x03: Stack underflow")
 		return self.contexts[to].stack or []
 

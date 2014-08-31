@@ -10,6 +10,7 @@ class Calculator:
 	opers = [
 		{ # no operands
 			"time": lambda: int(time.time()),
+			"rand": lambda: random.random(),
 			"e": lambda: math.e, "pi": lambda: math.pi, "i": lambda: 1j
 		},
 		{ # 1 operand

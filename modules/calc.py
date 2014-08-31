@@ -134,9 +134,9 @@ class CalcModule:
 		try:
 			self.contexts[to].calc(expr)
 		except ZeroDivisionError:
-			self.circa.say("\x0304\x02Error\x02\x03: Division by zero")
+			self.circa.say(to, "\x0304\x02Error\x02\x03: Division by zero")
 		except:
-			self.circa.say("\x0304\x02Error\x02\x03: Stack underflow")
+			self.circa.say(to, "\x0304\x02Error\x02\x03: Stack underflow")
 		return self.contexts[to].stack
 
 	def calc(self, fr, to, expr, m):

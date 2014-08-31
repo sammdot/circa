@@ -70,15 +70,18 @@ class Calculator:
 
 	def calc(self, expr):
 		self.stack = []
+		self.stackstack = []
 		for token in expr.split():
 			if token in self.opers[0]:
 				self.stack.append(self.opers[0][token]())
 			elif token in self.opers[1]:
 				if len(self.stack) == 0:
+					self.stack = None
 					raise Exception
 				self.stack.append(self.opers[1][token](self.stack.pop()))
 			elif token in self.opers[2]:
 				if len(self.stack) < 2:
+					self.stack = None
 					raise Exception
 				self.stack[-2:] = [self.opers[2][token](*self.stack[-2:])]
 			elif token in self.opers_:
@@ -137,22 +140,26 @@ class CalcModule:
 			self.circa.say(to, "\x0304\x02Error\x02\x03: Division by zero")
 		except:
 			self.circa.say(to, "\x0304\x02Error\x02\x03: Stack underflow")
-		return self.contexts[to].stack
+		return self.contexts[to].stack or []
 
 	def calc(self, fr, to, expr, m):
 		results = self._calc(to, expr)
-		self.circa.say(to, fr + ": " + ", ".join(map(str, results)))
+		if results:
+			self.circa.say(to, fr + ": " + ", ".join(map(str, results)))
 
 	def bcalc(self, fr, to, expr, m):
 		results = map(lambda x: bin(x)[2:] + "b", self._calc(to, expr))
-		self.circa.say(to, fr + ": " + ", ".join(map(str, results)))
+		if results:
+			self.circa.say(to, fr + ": " + ", ".join(map(str, results)))
 
 	def ocalc(self, fr, to, expr, m):
 		results = map(lambda x: oct(x)[2:] + "o", self._calc(to, expr))
-		self.circa.say(to, fr + ": " + ", ".join(map(str, results)))
+		if results:
+			self.circa.say(to, fr + ": " + ", ".join(map(str, results)))
 
 	def hcalc(self, fr, to, expr, m):
 		results = map(lambda x: hex(x)[2:].upper() + "h", self._calc(to, expr))
-		self.circa.say(to, fr + ": " + ", ".join(map(str, results)))
+		if results:
+			self.circa.say(to, fr + ": " + ", ".join(map(str, results)))
 
 module = CalcModule

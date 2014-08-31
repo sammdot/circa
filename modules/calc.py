@@ -36,11 +36,14 @@ class Calculator:
 		"@*": lambda self: self.product(),
 		"->": lambda self: self.range(),
 		"d": lambda self: self.diceroll(),
+		"(": lambda self: self.begstack(),
+		")": lambda self: self.endstack(),
 	}
 	bases = {"b": 2, "o": 8, "h": 16, "x": 16}
 
 	def __init__(self):
 		self.stack = []
+		self.stackstack = []
 
 	def dup(self):
 		self.stack.append(self.stack[-1])
@@ -56,6 +59,14 @@ class Calculator:
 	def diceroll(self):
 		b, a = self.stack.pop(), self.stack.pop()
 		self.stack.extend([random.randint(1, b) for i in range(a)])
+
+	def begstack(self):
+		self.stackstack.append(self.stack)
+		self.stack = []
+	def endstack(self):
+		if len(self.stackstack) == 0:
+			raise Exception
+		self.stack.extend(self.stackstack.pop())
 
 	def calc(self, expr):
 		self.stack = []

@@ -132,6 +132,13 @@ class CalcModule:
 			"hcalc": "hcalc [expr] → like calc, but returns answers in hexadecimal",
 		}
 
+	strfuncs = {
+		2: lambda x: bin(x)[2:] + "b",
+		8: lambda x: oct(x)[2:] + "o",
+		10: str,
+		16: lambda x: hex(x)[2:].upper() + "h"
+	}
+
 	def ensure_context(self, chan):
 		if chan not in self.contexts:
 			self.contexts[chan] = Calculator()
@@ -147,24 +154,47 @@ class CalcModule:
 			self.circa.say(to, "\x0304\x02Error\x02\x03: Stack underflow")
 		return self.contexts[to].stack or []
 
+	def str(self, num, base=10):
+		if base not in self.strfuncs:
+			return
+		if isinstance(num, int):
+			return self.strfuncs[base](num)
+		elif isinstance(num, float):
+			if num.is_integer():
+				return self.str(int(num), base)
+			if base != 10:
+				# TODO: base conversion
+				return "<fraction>"
+			# TODO: exact fractions and roots
+			return str(num)
+		elif isinstance(num, complex):
+			if base != 10:
+				# TODO: base conversion
+				return "<complex>"
+			re, im = num.real, num.imag
+			return (self.str(re, base) + "+" if re else "") + \
+				("" if im == 1 else self.str(im, base)) + "i"
+		else:
+			return str(num)
+
 	def calc(self, fr, to, expr, m):
-		results = self._calc(to, expr)
+		results = map(self.str, self._calc(to, expr))
 		if results:
-			self.circa.say(to, fr + ": " + ", ".join(map(str, results)))
+			self.circa.say(to, fr + ": " + ", ".join(results))
 
 	def bcalc(self, fr, to, expr, m):
-		results = map(lambda x: bin(x)[2:] + "b", self._calc(to, expr))
+		results = map(lambda x: self.str(x, 2), self._calc(to, expr))
 		if results:
-			self.circa.say(to, fr + ": " + ", ".join(map(str, results)))
+			self.circa.say(to, fr + ": " + ", ".join(results))
 
 	def ocalc(self, fr, to, expr, m):
-		results = map(lambda x: oct(x)[2:] + "o", self._calc(to, expr))
+		results = map(lambda x: self.str(x, 8), self._calc(to, expr))
 		if results:
-			self.circa.say(to, fr + ": " + ", ".join(map(str, results)))
+			self.circa.say(to, fr + ": " + ", ".join(results))
 
 	def hcalc(self, fr, to, expr, m):
-		results = map(lambda x: hex(x)[2:].upper() + "h", self._calc(to, expr))
+		results = map(lambda x: self.str(x, 16), self._calc(to, expr))
 		if results:
-			self.circa.say(to, fr + ": " + ", ".join(map(str, results)))
+			self.circa.say(to, fr + ": " + ", ".join(results))
 
 module = CalcModule

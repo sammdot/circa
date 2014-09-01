@@ -1,3 +1,4 @@
+import cmath
 import functools
 import math
 import operator
@@ -17,9 +18,9 @@ class Calculator:
 			"e": lambda: math.e, "pi": lambda: math.pi, "i": lambda: 1j
 		},
 		{ # 1 operand
-			"~": lambda x: ~x, "sqrt": math.sqrt, "ln": math.log, "log": math.log10,
-			"sin": math.sin, "cos": math.cos, "tan": math.tan, "exp": math.exp,
-			"asin": math.asin, "acos": math.acos, "atan": math.atan,
+			"~": lambda x: ~x, "sqrt": cmath.sqrt, "ln": cmath.log, "log": cmath.log10,
+			"sin": cmath.sin, "cos": cmath.cos, "tan": cmath.tan, "exp": cmath.exp,
+			"asin": cmath.asin, "acos": cmath.acos, "atan": cmath.atan,
 			"rad": math.radians, "deg": math.degrees, "floor": math.floor,
 			"ceil": math.ceil, "abs": math.fabs, "!": math.factorial,
 			"1/x": lambda x: 1/x, "inv": lambda x: 1/x,

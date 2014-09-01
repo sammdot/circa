@@ -24,6 +24,8 @@ class Calculator:
 			"rad": math.radians, "deg": math.degrees, "floor": math.floor,
 			"ceil": math.ceil, "abs": math.fabs, "!": math.factorial,
 			"1/x": lambda x: 1/x, "inv": lambda x: 1/x,
+			">C": lambda x: (x - 32) * 5/9, ">F": lambda x: 9/5 * x + 32,
+			">K": lambda x: x + 273.15, "<K": lambda x: x - 273.15,
 		},
 		{ # 2 operands
 			"+": operator.add, "-": operator.sub, "*": operator.mul,
@@ -174,28 +176,29 @@ class CalcModule:
 			re, im = num.real, num.imag
 			if im == 0:
 				return self.str(re, base)
-			return (self.str(re, base) + "+" if re else "") + \
-				("" if im == 1 else self.str(im, base)) + "i"
+			return (self.str(re, base) + ("+" if im > 0 else "") if re else "") + \
+				("-" if im < 0 else "") + ("" if abs(im) == 1 else \
+				self.str(abs(im), base)) + "i"
 		else:
 			return str(num)
 
 	def calc(self, fr, to, expr, m):
-		results = map(self.str, self._calc(to, expr))
+		results = list(map(self.str, self._calc(to, expr)))
 		if results:
 			self.circa.say(to, fr + ": " + ", ".join(results))
 
 	def bcalc(self, fr, to, expr, m):
-		results = map(lambda x: self.str(x, 2), self._calc(to, expr))
+		results = list(map(lambda x: self.str(x, 2), self._calc(to, expr)))
 		if results:
 			self.circa.say(to, fr + ": " + ", ".join(results))
 
 	def ocalc(self, fr, to, expr, m):
-		results = map(lambda x: self.str(x, 8), self._calc(to, expr))
+		results = list(map(lambda x: self.str(x, 8), self._calc(to, expr)))
 		if results:
 			self.circa.say(to, fr + ": " + ", ".join(results))
 
 	def hcalc(self, fr, to, expr, m):
-		results = map(lambda x: self.str(x, 16), self._calc(to, expr))
+		results = list(map(lambda x: self.str(x, 16), self._calc(to, expr)))
 		if results:
 			self.circa.say(to, fr + ": " + ", ".join(results))
 

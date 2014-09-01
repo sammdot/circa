@@ -166,7 +166,6 @@ class CalcModule:
 			if base != 10:
 				# TODO: base conversion
 				return "<fraction>"
-			# TODO: exact fractions and roots
 			return str(num)
 		elif isinstance(num, complex):
 			if base != 10:

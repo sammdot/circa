@@ -182,22 +182,22 @@ class CalcModule:
 			return str(num)
 
 	def calc(self, fr, to, expr, m):
-		results = map(self.str, self._calc(to, expr))
+		results = list(map(self.str, self._calc(to, expr)))
 		if results:
 			self.circa.say(to, fr + ": " + ", ".join(results))
 
 	def bcalc(self, fr, to, expr, m):
-		results = map(lambda x: self.str(x, 2), self._calc(to, expr))
+		results = list(map(lambda x: self.str(x, 2), self._calc(to, expr)))
 		if results:
 			self.circa.say(to, fr + ": " + ", ".join(results))
 
 	def ocalc(self, fr, to, expr, m):
-		results = map(lambda x: self.str(x, 8), self._calc(to, expr))
+		results = list(map(lambda x: self.str(x, 8), self._calc(to, expr)))
 		if results:
 			self.circa.say(to, fr + ": " + ", ".join(results))
 
 	def hcalc(self, fr, to, expr, m):
-		results = map(lambda x: self.str(x, 16), self._calc(to, expr))
+		results = list(map(lambda x: self.str(x, 16), self._calc(to, expr)))
 		if results:
 			self.circa.say(to, fr + ": " + ", ".join(results))
 

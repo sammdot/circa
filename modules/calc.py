@@ -176,7 +176,7 @@ class CalcModule:
 			re, im = num.real, num.imag
 			if im == 0:
 				return self.str(re, base)
-			return (self.str(re, base) + "+" if re else "") + \
+			return (self.str(re, base) + ("+" if im > 0 else "") if re else "") + \
 				("" if im == 1 else self.str(im, base)) + "i"
 		else:
 			return str(num)

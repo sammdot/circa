@@ -24,6 +24,8 @@ class Calculator:
 			"rad": math.radians, "deg": math.degrees, "floor": math.floor,
 			"ceil": math.ceil, "abs": math.fabs, "!": math.factorial,
 			"1/x": lambda x: 1/x, "inv": lambda x: 1/x,
+			">C": lambda x: (x - 32) * 5/9, ">F": lambda x: 9/5 * x + 32,
+			">K": lambda x: x + 273.15, "<K": lambda x: x - 273.15,
 		},
 		{ # 2 operands
 			"+": operator.add, "-": operator.sub, "*": operator.mul,

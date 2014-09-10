@@ -102,7 +102,7 @@ class Calculator:
 					pass
 			elif token.count(".") == 3:
 				# IP address
-				*nums = token.split(".")
+				nums = token.split(".")
 				try:
 					nums = list(map(int, nums))
 					shift = lambda x: x[0] << x[1]

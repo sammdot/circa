@@ -34,9 +34,7 @@ class Circa(client.Client):
 
 		logging.info("Loading modules")
 		sys.path.append(self.cwd)
-		self.load_module("cmd")
-		self.load_module("chan")
-		for module in conf["modules"]:
+		for module in "cmd chan module".split() + conf["modules"]:
 			self.load_module(module)
 
 		self.connect()
@@ -71,9 +69,6 @@ class Circa(client.Client):
 		return any(match(mask, prefix) for mask in self.server.admins)
 
 	def load_module(self, name):
-		if name in self.modules:
-			logging.error("Already loaded: {0}".format(name))
-			return False
 		try:
 			if "modules." + name in sys.modules:
 				m = importlib.reload(sys.modules["modules." + name]).module
@@ -86,13 +81,8 @@ class Circa(client.Client):
 				for listener in listeners:
 					self.add_listener(event, listener)
 			logging.info("Loaded {0}".format(name))
-			return True
-		except ImportError as e:
-			logging.error("Cannot import module {0}: {1}".format(name, e))
-			return False
 		except Exception as e:
-			logging.error("Cannot load module {0}: {1}".format(name, e))
-			return False
+			raise Exception("Cannot import {0}: {1}".format(name, e))
 
 	def unload_module(self, name):
 		if name not in self.modules:

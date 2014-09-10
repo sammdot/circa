@@ -144,12 +144,14 @@ class CalcModule:
 			"cmd.bcalc": [self.bcalc],
 			"cmd.ocalc": [self.ocalc],
 			"cmd.hcalc": [self.hcalc],
+			"cmd.ipcalc": [self.ipcalc],
 		}
 		self.docs = {
 			"calc": "calc [expr] → evaluate the postfix expression. More info in the online docs.",
 			"bcalc": "bcalc [expr] → like calc, but returns answers in binary",
 			"ocalc": "ocalc [expr] → like calc, but returns answers in octal",
 			"hcalc": "hcalc [expr] → like calc, but returns answers in hexadecimal",
+			"ipcalc": "ipcalc [expr] → like calc, but returns answers as IPv4 addresses",
 		}
 
 	strfuncs = {
@@ -216,6 +218,14 @@ class CalcModule:
 
 	def hcalc(self, fr, to, expr, m):
 		results = list(map(lambda x: self.str(x, 16), self._calc(to, expr)))
+		if results:
+			self.circa.say(to, fr + ": " + ", ".join(results))
+
+	def ipcalc(self, fr, to, expr, m):
+		def ipify(num):
+			octets = [num >> 24 & 0xFF, num >> 16 & 0xFF, num >> 8 & 0xFF, num & 0xFF]
+			return ".".join(map(str, octets))
+		results = list(map(ipify, self._calc(to, expr)))
 		if results:
 			self.circa.say(to, fr + ": " + ", ".join(results))
 

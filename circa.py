@@ -31,13 +31,21 @@ class Circa(client.Client):
 		self.add_listener("registered", self.registered)
 		self.add_listener("invite", self.invited)
 		self.add_listener("ctcp.version", self.ctcp_version)
+		self.add_listener("message", self.handle_cmd)
 
 		logging.info("Loading modules")
 		sys.path.append(self.cwd)
-		for module in "cmd chan module".split() + conf["modules"]:
+		for module in "chan module".split() + conf["modules"]:
 			self.load_module(module)
 
 		self.connect()
+
+	def handle_cmd(self, fr, to, text, m):
+		if text.startswith(self.conf["prefix"]):
+			cmd = text.split(" ")[0]
+			cmdname = "$" if cmd == self.conf["prefix"] else cmd[1:]
+			self.emit("cmd." + cmdname, fr, fr if to == self.nick else to,
+				" ".join(text.split(" ")[1:]), m)
 
 	def say(self, to, msg):
 		msg = msg.replace("\x07", "")
@@ -75,6 +83,8 @@ class Circa(client.Client):
 			m = importlib.import_module("modules." + name).module
 			if hasattr(m, "require"):
 				for mod in m.require.split():
+					if mod == "cmd":
+						continue
 					self.load_module(mod)
 			self.modules[name] = module = m(self)
 			for event, listeners in module.events.items():

@@ -223,6 +223,8 @@ class CalcModule:
 
 	def ipcalc(self, fr, to, expr, m):
 		def ipify(num):
+			if not isinstance(num, int):
+				return "NaN.NaN.NaN.NaN"
 			octets = [num >> 24 & 0xFF, num >> 16 & 0xFF, num >> 8 & 0xFF, num & 0xFF]
 			return ".".join(map(str, octets))
 		results = list(map(ipify, self._calc(to, expr)))

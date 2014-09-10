@@ -39,7 +39,7 @@ class ModuleModule:
 				self.circa.say(to, "\x0304\x02Error\x02\x03: {0}".format(e))
 
 	def modules(self, fr, to, msg, m):
-		self.circa.notice(fr, "Available modules: " + " ".join(self.circa.modules.keys()))
+		self.circa.notice(fr, "Available modules: " + " ".join(sorted(self.circa.modules.keys())))
 
 module = ModuleModule
 

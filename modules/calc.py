@@ -155,10 +155,10 @@ class CalcModule:
 		}
 
 	strfuncs = {
-		2: lambda x: bin(x)[2:] + "b",
-		8: lambda x: oct(x)[2:] + "o",
+		2: lambda x: "0b" + bin(x)[2:],
+		8: lambda x: "0o" + oct(x)[2:],
 		10: str,
-		16: lambda x: hex(x)[2:].upper() + "h"
+		16: lambda x: "0x" + hex(x)[2:].upper()
 	}
 
 	def ensure_context(self, chan):

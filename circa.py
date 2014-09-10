@@ -102,4 +102,5 @@ class Circa(client.Client):
 			for listener in listeners:
 				self.remove_listener(event, listener)
 		del self.modules[name]
+		logging.info("Unloaded {0}".format(name))
 

@@ -92,7 +92,24 @@ class Calculator:
 				self.stack[-2:] = [self.opers[2][token](*self.stack[-2:])]
 			elif token in self.opers_:
 				self.opers_[token](self)
-			elif len(token.split("/")) == 2:
+			elif token.startswith("/"):
+				# subnet mask
+				num = token[1:]
+				try:
+					self.stack.append(4294967295 ^ \
+						sum([2 ** i for i in range(32 - int(num))]))
+				except ValueError:
+					pass
+			elif token.count(".") == 3:
+				# IP address
+				nums = token.split(".")
+				try:
+					nums = list(map(int, nums))
+					shift = lambda x: x[0] << x[1]
+					self.stack.append(sum(map(shift, zip(nums, [24, 16, 8, 0]))))
+				except ValueError:
+					pass
+			elif "/" in token and not token.endswith("/"):
 				t = token.split("/")
 				try:
 					self.stack.append(int(t[0]) / int(t[1]))
@@ -127,19 +144,21 @@ class CalcModule:
 			"cmd.bcalc": [self.bcalc],
 			"cmd.ocalc": [self.ocalc],
 			"cmd.hcalc": [self.hcalc],
+			"cmd.ipcalc": [self.ipcalc],
 		}
 		self.docs = {
 			"calc": "calc [expr] → evaluate the postfix expression. More info in the online docs.",
 			"bcalc": "bcalc [expr] → like calc, but returns answers in binary",
 			"ocalc": "ocalc [expr] → like calc, but returns answers in octal",
 			"hcalc": "hcalc [expr] → like calc, but returns answers in hexadecimal",
+			"ipcalc": "ipcalc [expr] → like calc, but returns answers as IPv4 addresses",
 		}
 
 	strfuncs = {
-		2: lambda x: bin(x)[2:] + "b",
-		8: lambda x: oct(x)[2:] + "o",
+		2: lambda x: "0b" + bin(x)[2:],
+		8: lambda x: "0o" + oct(x)[2:],
 		10: str,
-		16: lambda x: hex(x)[2:].upper() + "h"
+		16: lambda x: "0x" + hex(x)[2:].upper()
 	}
 
 	def ensure_context(self, chan):
@@ -199,6 +218,16 @@ class CalcModule:
 
 	def hcalc(self, fr, to, expr, m):
 		results = list(map(lambda x: self.str(x, 16), self._calc(to, expr)))
+		if results:
+			self.circa.say(to, fr + ": " + ", ".join(results))
+
+	def ipcalc(self, fr, to, expr, m):
+		def ipify(num):
+			if not isinstance(num, int):
+				return "NaN.NaN.NaN.NaN"
+			octets = [num >> 24 & 0xFF, num >> 16 & 0xFF, num >> 8 & 0xFF, num & 0xFF]
+			return ".".join(map(str, octets))
+		results = list(map(ipify, self._calc(to, expr)))
 		if results:
 			self.circa.say(to, fr + ": " + ", ".join(results))
 

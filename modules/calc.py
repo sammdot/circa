@@ -92,7 +92,24 @@ class Calculator:
 				self.stack[-2:] = [self.opers[2][token](*self.stack[-2:])]
 			elif token in self.opers_:
 				self.opers_[token](self)
-			elif len(token.split("/")) == 2:
+			elif token.startswith("/"):
+				# subnet mask
+				num = token[1:]
+				try:
+					self.stack.append(4294967295 ^ \
+						sum([2 ** i for i in range(32 - int(num))]))
+				except ValueError:
+					pass
+			elif token.count(".") == 3:
+				# IP address
+				*nums = token.split(".")
+				try:
+					nums = list(map(int, nums))
+					shift = lambda x: x[0] << x[1]
+					self.stack.append(sum(map(shift, zip(nums, [24, 16, 8, 0]))))
+				except ValueError:
+					pass
+			elif "/" in token and not token.endswith("/"):
 				t = token.split("/")
 				try:
 					self.stack.append(int(t[0]) / int(t[1]))

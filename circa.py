@@ -75,6 +75,8 @@ class Circa(client.Client):
 			logging.error("Already loaded: {0}".format(name))
 			return False
 		try:
+			if "modules." + name in sys.modules:
+				m = importlib.reload(sys.modules["modules." + name]).module
 			m = importlib.import_module("modules." + name).module
 			if hasattr(m, "require"):
 				for mod in m.require.split():
@@ -99,4 +101,5 @@ class Circa(client.Client):
 		for event, listeners in module.events.items():
 			for listener in listeners:
 				self.remove_listener(event, listener)
-		del sys.modules["modules." + name]
+		del self.modules[name]
+

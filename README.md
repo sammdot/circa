@@ -22,7 +22,7 @@ configuration and add the channels and modules as necessary.
 
 * `[modules]` specifies what modules to load at startup.
 
-* `[admins]` is a list of nick!user@host masks that match the bot's admins.
+* `[admins]` is a list of `nick!user@host` masks that match the bot's admins.
 
 * `[bot]` contains the options for command prefix and log file. 
 
@@ -31,4 +31,8 @@ configuration and add the channels and modules as necessary.
 Run the script `circa`, specifying the name of the config file as an argument.
 See `circa --help` to provide additional options, which will override those
 in the config file.
+
+## Modules
+
+TODO: add documentation on framework and writing modules
 

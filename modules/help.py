@@ -16,10 +16,13 @@ class HelpModule:
 				cmd = msg[1:]
 				if not cmd:
 					return
-				modules = [mod for mod in self.circa.modules if \
-					hasattr(mod, "docs") and cmd in mod.docs]
+				modules = [self.circa.modules[mod] for mod in self.circa.modules if \
+					hasattr(self.circa.modules[mod], "docs") and \
+					cmd in self.circa.modules[mod].docs]
 				if modules:
-					pass
+					for mod in modules:
+						command = mod.docs[cmd].replace("$", pfx)
+						self.circa.notice(fr, pfx + command)
 				else:
 					self.circa.notice(fr, "No command {0}{1}".format(pfx, cmd))
 			else:

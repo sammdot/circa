@@ -8,6 +8,9 @@ class SayModule:
 		self.events = {
 			"cmd.say": [self.say]
 		}
+		self.docs = {
+			"say": "say [msg] → print the message to the current channel. Admins only."
+		}
 
 	def say(self, fr, to, msg, m):
 		if self.circa.is_admin(m.prefix):

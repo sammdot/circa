@@ -329,7 +329,7 @@ class Client:
 					channel.users.pop(msg.nick)
 		elif c == "KICK":
 			chan, who, reason, *rest = msg.params
-			self.emit("kick", chan, who, nicklower(msg.nick), reason, msg)
+			self.emit("kick", chan, who, msg.nick, reason, msg)
 			if nickeq(self.nick, msg.nick):
 				self.channels.pop(chan[1:].lower())
 			else:
@@ -345,7 +345,7 @@ class Client:
 					chan.users.pop(nick)
 			self.emit("kill", nick, msg.params[1], channels, msg)
 		elif c == "PRIVMSG":
-			fr, to = nicklower(msg.nick), nicklower(msg.params[0])
+			fr, to = msg.nick, msg.params[0]
 			text = " ".join(msg.params[1:])
 			if to[0] in self.server.types:
 				self.channels[to[1:]].users[fr].messages.append(text)
@@ -354,11 +354,11 @@ class Client:
 			else:
 				self.emit("message", fr, to, text, msg)
 		elif c == "INVITE":
-			self.emit("invite", msg.params[1], nicklower(msg.nick), msg)
+			self.emit("invite", msg.params[1], msg.nick, msg)
 		elif c == "QUIT":
 			if nickeq(self.nick, msg.nick):
 				return
 			chans = list(filter(lambda c: msg.nick in c, self.channels.values()))
 			for chan in chans:
 				chan.users.pop(msg.nick)
-			self.emit("quit", nicklower(msg.nick), [c.name for c in chans], msg)
+			self.emit("quit", msg.nick, [c.name for c in chans], msg)

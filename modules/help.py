@@ -34,7 +34,7 @@ class HelpModule:
 				if c[1] not in module.docs:
 					self.circa.notice(fr, "No help for {0}{1} in module {2}".format(pfx, c[1], c[0]))
 					return
-				command = module.docs[c[1]]
+				command = module.docs[c[1]].replace("$", pfx)
 				self.circa.notice(fr, pfx + command)
 		else:
 			modules = sorted([i for i in self.circa.modules.keys() if \

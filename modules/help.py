@@ -5,7 +5,7 @@ class HelpModule:
 			"cmd.help": [self.help]
 		}
 		self.docs = {
-			"help": "help [<module>[.<command>]] → show usage info for a command, or list all commands in a module, or list all modules"
+			"help": "help [<module>[.<command>]|$<command>] → show usage info for a command, or list all commands in a module, or list all modules"
 		}
 
 	def help(self, fr, to, msg, m):
@@ -40,6 +40,6 @@ class HelpModule:
 			modules = sorted([i for i in self.circa.modules.keys() if \
 				hasattr(self.circa.modules[i], "docs")])
 			self.circa.notice(fr, "Available modules: " + ", ".join(modules))
-			self.circa.notice(fr, "Type {0}help <module> for a list of commands.".format(pfx))
+			self.circa.notice(fr, "Type {0}help <module> for a list of commands, or {0}<command> for individual command help.".format(pfx))
 
 module = HelpModule

@@ -31,15 +31,21 @@ class Circa(client.Client):
 		self.add_listener("registered", self.registered)
 		self.add_listener("invite", self.invited)
 		self.add_listener("ctcp.version", self.ctcp_version)
+		self.add_listener("message", self.handle_cmd)
 
 		logging.info("Loading modules")
 		sys.path.append(self.cwd)
-		self.load_module("cmd")
-		self.load_module("chan")
-		for module in conf["modules"]:
+		for module in "chan module".split() + conf["modules"]:
 			self.load_module(module)
 
 		self.connect()
+
+	def handle_cmd(self, fr, to, text, m):
+		if text.startswith(self.conf["prefix"]):
+			cmd = text.split(" ")[0]
+			cmdname = "$" if cmd == self.conf["prefix"] else cmd[1:]
+			self.emit("cmd." + cmdname, fr, fr if to == self.nick else to,
+				" ".join(text.split(" ")[1:]), m)
 
 	def say(self, to, msg):
 		msg = msg.replace("\x07", "")
@@ -71,26 +77,22 @@ class Circa(client.Client):
 		return any(match(mask, prefix) for mask in self.server.admins)
 
 	def load_module(self, name):
-		if name in self.modules:
-			logging.error("Already loaded: {0}".format(name))
-			return False
 		try:
+			if "modules." + name in sys.modules:
+				m = importlib.reload(sys.modules["modules." + name]).module
 			m = importlib.import_module("modules." + name).module
 			if hasattr(m, "require"):
 				for mod in m.require.split():
+					if mod == "cmd":
+						continue
 					self.load_module(mod)
 			self.modules[name] = module = m(self)
 			for event, listeners in module.events.items():
 				for listener in listeners:
 					self.add_listener(event, listener)
 			logging.info("Loaded {0}".format(name))
-			return True
-		except ImportError as e:
-			logging.error("Cannot import module {0}: {1}".format(name, e))
-			return False
 		except Exception as e:
-			logging.error("Cannot load module {0}: {1}".format(name, e))
-			return False
+			raise Exception("Cannot import {0}: {1}".format(name, e))
 
 	def unload_module(self, name):
 		if name not in self.modules:
@@ -99,4 +101,6 @@ class Circa(client.Client):
 		for event, listeners in module.events.items():
 			for listener in listeners:
 				self.remove_listener(event, listener)
-		del sys.modules["modules." + name]
+		del self.modules[name]
+		logging.info("Unloaded {0}".format(name))
+

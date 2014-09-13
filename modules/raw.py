@@ -8,6 +8,9 @@ class RawModule:
 		self.events = {
 			"cmd.raw": [self.raw]
 		}
+		self.docs = {
+			"raw": "raw [msg] → send a raw IRC message. Admins only."
+		}
 
 	def raw(self, fr, to, msg, m):
 		if self.circa.is_admin(m.prefix):

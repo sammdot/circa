@@ -172,7 +172,7 @@ class Client:
 			elif len(parts) > 1 and parts[0] == "ACTION":
 				self.emit("action", fr, to, " ".join(parts[1:]))
 			elif len(parts) > 1 and parts[0] == "PING":
-				self.ctcp_notice(fr, "PONG " + " ".join(parts[1:]))
+				self.ctcp_notice(fr, "PING " + " ".join(parts[1:]))
 
 	def handle(self, msg):
 		self.emit("raw", msg)

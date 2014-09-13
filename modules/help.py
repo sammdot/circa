@@ -13,7 +13,15 @@ class HelpModule:
 		msg = msg.split(" ", 1)[0]
 		if msg:
 			if msg.startswith(pfx):
-				pass
+				cmd = msg[1:]
+				if not cmd:
+					return
+				modules = [mod for mod in self.circa.modules if \
+					hasattr(mod, "docs") and cmd in mod.docs]
+				if modules:
+					pass
+				else:
+					self.circa.notice(fr, "No command {0}{1}".format(pfx, cmd))
 			else:
 				c = msg.split(".", 1)
 				if c[0] not in self.circa.modules:

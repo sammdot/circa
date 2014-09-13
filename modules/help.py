@@ -26,7 +26,7 @@ class HelpModule:
 					if isinstance(module.docs, dict):
 						commands = sorted([pfx + cmd for cmd in module.docs.keys()])
 						self.circa.notice(fr, "Available commands: " + ", ".join(commands))
-						self.circa.notice(fr, "Type {0}help {1}.<command> for command help.".format(pfx, c[0]))
+						self.circa.notice(fr, "Type {0}help {1}.<command> or {0}help {0}<command> for command help.".format(pfx, c[0]))
 					else:
 						# in this case the module likely doesn't offer plain commands
 						self.circa.notice(fr, str(module.docs))

@@ -351,8 +351,7 @@ class Client:
 				self.channels[to[1:]].users[fr].messages.append(text)
 			if text[0] == "\x01" and "\x01" in text[1:]:
 				self._ctcp(fr, to, text, "privmsg")
-			else:
-				self.emit("message", fr, to, text, msg)
+			self.emit("message", fr, to, text, msg)
 		elif c == "INVITE":
 			self.emit("invite", msg.params[1], msg.nick, msg)
 		elif c == "QUIT":

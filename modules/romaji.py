@@ -1,3 +1,4 @@
+import shlex
 import subprocess
 
 class RomajiModule:
@@ -9,6 +10,8 @@ class RomajiModule:
 		self.docs = "Automatically transliterates Japanese script in any message into rōmaji."
 
 	def trans(self, fr, to, msg, m):
-		pass
+		text = shlex.quote(msg)
+		out = subprocess.check_output("echo {0} | iconv -f utf8 -t eucjp | kakasi -i euc -w | " \
+			"kakasi -i euc -Ha -Ja -Ka -Ea -ka".format(text), shell=True).decode("utf-8")
 
 module = RomajiModule

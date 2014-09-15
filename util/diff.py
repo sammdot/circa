@@ -5,9 +5,9 @@ def diff(a, b):
 	out = []
 	for opcode, a0, a1, b0, b1 in sm.get_opcodes():
 		if opcode == "equal":
-			output.append(seqm.a[a0:a1])
+			out.append(seqm.a[a0:a1])
 		elif opcode == "insert":
-			output.append("\x1f" + seqm.b[b0:b1] + "\x1f")
+			out.append("\x1f" + seqm.b[b0:b1] + "\x1f")
 		elif opcode == "delete":
 			pass
 		elif opcode == "replace":

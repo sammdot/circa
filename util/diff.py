@@ -1,7 +1,7 @@
 import difflib
 
 def diff(a, b):
-	sm = difflib.SequenceMatcher(a, b)
+	sm = difflib.SequenceMatcher(None, a, b)
 	out = []
 	for opcode, a0, a1, b0, b1 in sm.get_opcodes():
 		if opcode == "equal":
@@ -11,7 +11,7 @@ def diff(a, b):
 		elif opcode == "delete":
 			pass
 		elif opcode == "replace":
-			raise NotImplementedError("encountered 'replace' opcode")
+			out.append("\x1f" + seqm.b[b0:b1] + "\x1f")
 		else:
 			raise RuntimeError("unknown opcode")
 	return "".join(out)

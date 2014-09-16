@@ -18,6 +18,8 @@ class RomajiModule:
 		# TODO: process kakasi output
 		if msg != out:
 			d = diff(msg, out)
+			if "\x1f" not in diff:
+				return
 			if msg.startswith("\x01ACTION "):
 				self.circa.say(to, "\x02* {0}\x02 ".format(fr) + d[len("\x01ACTION "):-1])
 			else:

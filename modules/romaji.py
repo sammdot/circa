@@ -7,9 +7,9 @@ class RomajiModule:
 	def __init__(self, circa):
 		self.circa = circa
 		self.events = {
-			"message": [self.trans]
+			"cmd.romaji": [self.trans]
 		}
-		self.docs = "Automatically transliterates Japanese script in any message into rōmaji."
+		self.docs = "Transliterates Japanese script into rōmaji."
 
 	def trans(self, fr, to, msg, m):
 		text = shlex.quote(msg)
@@ -18,11 +18,8 @@ class RomajiModule:
 		# TODO: process kakasi output
 		if msg != out:
 			d = diff(msg, out)
-			if "\x1f" not in diff:
+			if "\x1f" not in d:
 				return
-			if msg.startswith("\x01ACTION "):
-				self.circa.say(to, "\x02* {0}\x02 ".format(fr) + d[len("\x01ACTION "):-1])
-			else:
-				self.circa.say(to, "<{0}> ".format(fr) + d)
+			self.circa.say(to, fr + ": " + d)
 
 module = RomajiModule

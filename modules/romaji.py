@@ -15,11 +15,12 @@ class RomajiModule:
 		text = shlex.quote(msg)
 		out = subprocess.check_output("echo -n {0} | kakasi -i utf8 -w | " \
 			"kakasi -i utf8 -Ha -Ja -Ka -Ea -ka".format(text), shell=True).decode("utf-8")
-		# TODO: process kakasi output
+		out = out.replace(" .", ".").replace(" !", "!")
 		if msg != out:
 			d = diff(msg, out)
 			if "\x1f" not in d:
 				return
+			d = d.replace("\x1f", "")
 			self.circa.say(to, fr + ": " + d)
 
 module = RomajiModule

@@ -48,9 +48,12 @@ class Circa(client.Client):
 				" ".join(text.split(" ")[1:]), m)
 
 	def say(self, to, msg):
-		msg = msg.replace("\x07", "")
-		for line in msg.splitlines():
+		lines = msg.replace("\x07", "").splitlines()
+		for line in lines[:5]:
 			client.Client.say(self, to, line)
+		if len(lines) > 5:
+			diff = len(lines) - 5
+			client.Client.say(self, to, "[... {0} more line{1}]".format(diff, "s" if diff > 1 else ""))
 
 	def notice(self, to, msg):
 		msg = msg.replace("\x07", "")

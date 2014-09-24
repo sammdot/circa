@@ -73,6 +73,8 @@ class Client:
 
 	def say(self, to, msg):
 		"""Send a message to a user/channel."""
+		if not msg:
+			return
 		self.send("PRIVMSG", to, ":" + msg)
 		if any([to.startswith(i) for i in self.server.types]):
 			self.channels[to[1:]].users[self.nick].messages.append(msg)

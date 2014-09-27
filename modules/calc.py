@@ -9,20 +9,28 @@ import time
 class StackUnderflow(Exception):
 	pass
 
+def floor(n):
+	return math.floor(n.real) + math.floor(n.imag) if isinstance(n, complex) \
+		else math.floor(n)
+def ceil(n):
+	return math.ceil(n.real) + math.ceil(n.imag) if isinstance(n, complex) \
+		else math.ceil(n)
+
 class Calculator:
 	"""A postfix calculator engine."""
 	opers = [
 		{ # no operands
 			"time": lambda: int(time.time()),
 			"rand": lambda: random.random(),
-			"e": lambda: math.e, "pi": lambda: math.pi, "i": lambda: 1j
+			"e": lambda: math.e, "pi": lambda: math.pi, "i": lambda: 1j,
+			"-i": lambda: -1j
 		},
 		{ # 1 operand
 			"~": lambda x: ~x, "sqrt": cmath.sqrt, "ln": cmath.log, "log": cmath.log10,
 			"sin": cmath.sin, "cos": cmath.cos, "tan": cmath.tan, "exp": cmath.exp,
 			"asin": cmath.asin, "acos": cmath.acos, "atan": cmath.atan,
-			"rad": math.radians, "deg": math.degrees, "floor": math.floor,
-			"ceil": math.ceil, "abs": math.fabs, "!": math.factorial,
+			">R": math.radians, ">D": math.degrees, "abs": math.fabs,
+			"!": math.factorial, "floor": floor, "ceil": ceil,
 			"1/x": lambda x: 1/x, "inv": lambda x: 1/x,
 			">C": lambda x: (x - 32) * 5/9, ">F": lambda x: 9/5 * x + 32,
 			">K": lambda x: x + 273.15, "<K": lambda x: x - 273.15,
@@ -36,6 +44,10 @@ class Calculator:
 	]
 	opers_ = {
 		"_": lambda self: self.dup(),
+		"dup": lambda self: self.dup(),
+		"swap": lambda self: self.swap(),
+		"max": lambda self: self.max(),
+		"min": lambda self: self.min(),
 		"@>": lambda self: self.sort(),
 		"@<": lambda self: self.sort(True),
 		"@+": lambda self: self.sum(),
@@ -53,6 +65,12 @@ class Calculator:
 
 	def dup(self):
 		self.stack.append(self.stack[-1])
+	def swap(self):
+		self.stack[-1], self.stack[-2] = self.stack[-2], self.stack[-1]
+	def max(self):
+		self.stack = [max(self.stack)]
+	def min(self):
+		self.stack = [min(self.stack)]
 	def sort(self, rev=False):
 		self.stack = sorted(self.stack, reverse=rev)
 	def sum(self):

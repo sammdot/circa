@@ -76,7 +76,7 @@ class SedModule:
 				if "i" in flags: f |= re.I
 				if "x" in flags: f |= re.X
 				if "s" in flags: f |= re.S
-				rhs = rhs.replace("\\/", "/").replace("\\", "\\\\")
+				rhs = rhs.replace("\\/", "/")
 				rhs = re.sub(r"(?<!\\)(\\)(?=\d+|g<\w+>)", r"\\\\", rhs)
 				rhs = unescape(rhs)
 				count = int("g" not in flags)

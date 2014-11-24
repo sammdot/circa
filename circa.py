@@ -62,6 +62,7 @@ class Circa(client.Client):
 
 	def registered(self, nick, m):
 		self.send("MODE", nick, "+B")
+		self.send("MODE", nick, "-x")
 		for chan in self.conf["channels"]:
 			self.join("#" + chan)
 		self.server.admins = set(map(nicklower, self.conf["admins"]))

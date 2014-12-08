@@ -11,6 +11,7 @@ class RomajiModule:
 		}
 		self.docs = {
 			"romaji": "romaji [text] → Transliterates Japanese script (katakana, hiragana, kanji) into rōmaji."
+		}
 
 	def trans(self, fr, to, msg, m):
 		text = shlex.quote(msg)

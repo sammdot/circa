@@ -5,8 +5,12 @@ import operator
 import random
 import re
 import time
+import multiprocessing
 
 class StackUnderflow(Exception):
+	pass
+
+class TimeLimitExceeded(Exception):
 	pass
 
 def floor(n):
@@ -15,6 +19,16 @@ def floor(n):
 def ceil(n):
 	return math.ceil(n.real) + math.ceil(n.imag) if isinstance(n, complex) \
 		else math.ceil(n)
+
+def simplify(n):
+	if isinstance(n, complex):
+		return n
+	try:
+		if float(n).is_integer():
+			return int(n)
+	except OverflowError:
+		return float('inf')
+	return n
 
 class Calculator:
 	"""A postfix calculator engine."""
@@ -147,8 +161,7 @@ class Calculator:
 					self.stack.append(val)
 				except ValueError:
 					pass
-		self.stack = [int(i) if not isinstance(i, complex) and \
-			float(i).is_integer() else i for i in self.stack]
+		self.stack = [simplify(i) for i in self.stack]
 
 class CalcModule:
 	require = "cmd"
@@ -186,13 +199,21 @@ class CalcModule:
 	def _calc(self, to, expr):
 		self.ensure_context(to)
 		try:
-			self.contexts[to].calc(expr)
+			proc = multiprocessing.Process(target=lambda: self.contexts[to].calc(expr))
+			proc.start()
+			proc.join(2)
+			if proc.is_alive():
+				proc.terminate()
+				raise TimeLimitExceeded
 		except ZeroDivisionError:
 			self.circa.say(to, "\x0304\x02Error\x02\x03: Division by zero")
 			return []
 		except StackUnderflow:
 			self.circa.say(to, "\x0304\x02Error\x02\x03: Stack underflow")
-		return self.contexts[to].stack or []
+			return []
+		except TimeLimitExceeded:
+			self.circa.say(to, "\x0304\x02Error\x02\x03: Time limit exceeded")
+		return self.contexts[to].stack
 
 	def str(self, num, base=10):
 		if base not in self.strfuncs:

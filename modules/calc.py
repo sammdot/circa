@@ -35,8 +35,9 @@ class Calculator:
 	opers = [
 		{ # no operands
 			"time": lambda: int(time.time()),
-			"rand": lambda: random.random(),
+			"rand": random.random,
 			"e": lambda: math.e, "pi": lambda: math.pi, "i": lambda: 1j,
+			"c": lambda: 299792458, "g": 9.80665,
 			"-i": lambda: -1j
 		},
 		{ # 1 operand

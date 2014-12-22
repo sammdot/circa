@@ -107,7 +107,7 @@ class Calculator:
 			raise StackUnderflow
 		self.stack.extend(self.stackstack.pop())
 
-	def calc(self, expr):
+	def calc(self, expr, queue):
 		self.stack = []
 		self.stackstack = []
 		for token in expr.split():
@@ -162,7 +162,7 @@ class Calculator:
 					self.stack.append(val)
 				except ValueError:
 					pass
-		self.stack = [simplify(i) for i in self.stack]
+		queue.put([simplify(i) for i in self.stack])
 
 class CalcModule:
 	require = "cmd"
@@ -170,6 +170,7 @@ class CalcModule:
 	def __init__(self, circa):
 		self.circa = circa
 		self.contexts = {}
+		self.queue = multiprocessing.Queue()
 
 		self.events = {
 			"cmd.calc": [self.calc],
@@ -200,7 +201,7 @@ class CalcModule:
 	def _calc(self, to, expr):
 		self.ensure_context(to)
 		try:
-			proc = multiprocessing.Process(target=lambda: self.contexts[to].calc(expr))
+			proc = multiprocessing.Process(target=self.contexts[to].calc, args=(expr, self.queue))
 			proc.start()
 			proc.join(2)
 			if proc.is_alive():
@@ -214,7 +215,7 @@ class CalcModule:
 			return []
 		except TimeLimitExceeded:
 			self.circa.say(to, "\x0304\x02Error\x02\x03: Time limit exceeded")
-		return self.contexts[to].stack
+		return self.queue.get()
 
 	def str(self, num, base=10):
 		if base not in self.strfuncs:

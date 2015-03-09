@@ -1,5 +1,6 @@
 import os
 import sys
+import shutil
 
 class ChannelModule:
 	require = "cmd"
@@ -48,6 +49,7 @@ class ChannelModule:
 		if self.circa.is_admin(m.prefix):
 			self.circa.close()
 			os.chdir(str(self.circa.conf["cwd"]))
+			shutil.rmtree("__pycache__")
 			os.execl(sys.executable, sys.executable, *sys.argv)
 
 module = ChannelModule

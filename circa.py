@@ -83,7 +83,7 @@ class Circa(client.Client):
 	def load_module(self, name):
 		try:
 			if "modules." + name in sys.modules:
-				m = importlib.reload(sys.modules["modules." + name]).module
+				raise Exception("{0} already loaded".format(name))
 			m = importlib.import_module("modules." + name).module
 			if hasattr(m, "require"):
 				for mod in m.require.split():

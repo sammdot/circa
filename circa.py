@@ -84,7 +84,10 @@ class Circa(client.Client):
 		if name in self.modules:
 			return "{0} already loaded".format(name)
 		try:
-			m = importlib.import_module("modules." + name).module
+			mod = importlib.import_module("modules." + name)
+			# if it's been imported before, make sure we get the latest version
+			importlib.reload(mod)
+			m = mod.module
 			if hasattr(m, "require"):
 				for mod in m.require.split():
 					if mod == "cmd":

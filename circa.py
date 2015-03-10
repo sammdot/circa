@@ -81,9 +81,9 @@ class Circa(client.Client):
 		return any(match(mask, prefix) for mask in self.server.admins)
 
 	def load_module(self, name):
+		if name in self.modules:
+			return "{0} already loaded".format(name)
 		try:
-			if "modules." + name in sys.modules:
-				raise Exception("{0} already loaded".format(name))
 			m = importlib.import_module("modules." + name).module
 			if hasattr(m, "require"):
 				for mod in m.require.split():
@@ -95,8 +95,9 @@ class Circa(client.Client):
 				for listener in listeners:
 					self.add_listener(event, listener)
 			logging.info("Loaded {0}".format(name))
+			return 0
 		except Exception as e:
-			raise Exception("Cannot import {0}: {1}".format(name, e))
+			return "Cannot import {0}: {1}".format(name, e)
 
 	def unload_module(self, name):
 		if name not in self.modules:

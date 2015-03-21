@@ -82,6 +82,7 @@ class SedModule:
 				count = int("g" not in flags)
 				t = u[len("\x01ACTION "):] if u.startswith("\x01ACTION ") else u
 				t = re.sub(lhs, rhs, t, count=count, flags=f)
+				t = t.replace("\n", " ").replace("\r", " ")
 				if u.startswith("\x01ACTION ") or t.startswith("\x01ACTION "):
 					if t.startswith("\x01ACTION "):
 						t = t[len("\x01ACTION "):]
@@ -118,6 +119,7 @@ class SedModule:
 				t = tr(lhslst, rhslst, t)
 				if "s" in flags:
 					t = squeeze(rhslst, t)
+				t = t.replace("\n", " ").replace("\r", " ")
 				if u.startswith("\x01ACTION "):
 					t = t.replace("\x01", "")
 					self.circa.say(to, "\x02* {0}\x02 {1}".format(user, t))

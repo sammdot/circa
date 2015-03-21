@@ -115,8 +115,6 @@ class Client:
 				if not m:
 					raise socket.error
 				thread = threading.Thread(target=lambda: self.handle(m))
-				logging.debug("(%s) handler thread %s [%s]",
-					threading.current_thread().name, thread.name, m.raw)
 				thread.start()
 			except socket.error:
 				logging.info("Disconnected from server")
@@ -144,14 +142,12 @@ class Client:
 
 	def emit(self, event, *params):
 		"""Emit an event, and call all functions listening for it."""
-		logging.debug("[{0}] '{1}'".format(event, "', '".join(map(str, params))))
+		if event != "raw":
+			logging.debug("[{0}] '{1}'".format(event, "', '".join(map(str, params))))
 		if event in self.listeners:
 			for listener in self.listeners[event]:
 				try:
 					thread = threading.Thread(target=lambda: listener(*params))
-					logging.debug("(%s) worker thread %s [%s, %s]",
-						threading.current_thread().name, thread.name, event,
-						listener.__name__)
 					thread.start()
 				except TypeError as e:
 					logging.error("(%s) invalid number of parameters [%s]",

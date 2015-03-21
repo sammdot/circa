@@ -114,6 +114,7 @@ class Client:
 				m = Message.parse(msg)
 				if not m:
 					raise socket.error
+				logging.debug(m.raw)
 				thread = threading.Thread(target=lambda: self.handle(m))
 				thread.start()
 			except socket.error:
@@ -142,7 +143,7 @@ class Client:
 
 	def emit(self, event, *params):
 		"""Emit an event, and call all functions listening for it."""
-		if event != "raw":
+		if event != "raw" and self.conf["verbose"]:
 			logging.debug("[{0}] '{1}'".format(event, "', '".join(map(str, params))))
 		if event in self.listeners:
 			for listener in self.listeners[event]:

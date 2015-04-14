@@ -73,6 +73,8 @@ class Client:
 
 	def say(self, to, msg):
 		"""Send a message to a user/channel."""
+		if not msg:
+			return
 		self.send("PRIVMSG", to, ":" + msg)
 		if any([to.startswith(i) for i in self.server.types]):
 			self.channels[to[1:]].users[self.nick].messages.append(msg)
@@ -112,9 +114,8 @@ class Client:
 				m = Message.parse(msg)
 				if not m:
 					raise socket.error
+				logging.debug(m.raw)
 				thread = threading.Thread(target=lambda: self.handle(m))
-				logging.debug("(%s) handler thread %s [%s]",
-					threading.current_thread().name, thread.name, m.raw)
 				thread.start()
 			except socket.error:
 				logging.info("Disconnected from server")
@@ -142,14 +143,12 @@ class Client:
 
 	def emit(self, event, *params):
 		"""Emit an event, and call all functions listening for it."""
-		logging.debug("[{0}] '{1}'".format(event, "', '".join(map(str, params))))
+		if event != "raw" and self.conf["verbose"]:
+			logging.debug("[{0}] '{1}'".format(event, "', '".join(map(str, params))))
 		if event in self.listeners:
 			for listener in self.listeners[event]:
 				try:
 					thread = threading.Thread(target=lambda: listener(*params))
-					logging.debug("(%s) worker thread %s [%s, %s]",
-						threading.current_thread().name, thread.name, event,
-						listener.__name__)
 					thread.start()
 				except TypeError as e:
 					logging.error("(%s) invalid number of parameters [%s]",
@@ -329,7 +328,7 @@ class Client:
 					channel.users.pop(msg.nick)
 		elif c == "KICK":
 			chan, who, reason, *rest = msg.params
-			self.emit("kick", chan, who, nicklower(msg.nick), reason, msg)
+			self.emit("kick", chan, who, msg.nick, reason, msg)
 			if nickeq(self.nick, msg.nick):
 				self.channels.pop(chan[1:].lower())
 			else:
@@ -345,20 +344,19 @@ class Client:
 					chan.users.pop(nick)
 			self.emit("kill", nick, msg.params[1], channels, msg)
 		elif c == "PRIVMSG":
-			fr, to = nicklower(msg.nick), nicklower(msg.params[0])
+			fr, to = msg.nick, msg.params[0]
 			text = " ".join(msg.params[1:])
 			if to[0] in self.server.types:
 				self.channels[to[1:]].users[fr].messages.append(text)
 			if text[0] == "\x01" and "\x01" in text[1:]:
 				self._ctcp(fr, to, text, "privmsg")
-			else:
-				self.emit("message", fr, to, text, msg)
+			self.emit("message", fr, to, text, msg)
 		elif c == "INVITE":
-			self.emit("invite", msg.params[1], nicklower(msg.nick), msg)
+			self.emit("invite", msg.params[1], msg.nick, msg)
 		elif c == "QUIT":
 			if nickeq(self.nick, msg.nick):
 				return
 			chans = list(filter(lambda c: msg.nick in c, self.channels.values()))
 			for chan in chans:
 				chan.users.pop(msg.nick)
-			self.emit("quit", nicklower(msg.nick), [c.name for c in chans], msg)
+			self.emit("quit", msg.nick, [c.name for c in chans], msg)

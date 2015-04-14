@@ -48,9 +48,12 @@ class Circa(client.Client):
 				" ".join(text.split(" ")[1:]), m)
 
 	def say(self, to, msg):
-		msg = msg.replace("\x07", "")
-		for line in msg.splitlines():
+		lines = msg.replace("\x07", "").splitlines()
+		for line in lines[:5]:
 			client.Client.say(self, to, line)
+		if len(lines) > 5:
+			diff = len(lines) - 5
+			client.Client.say(self, to, "[... {0} more line{1}]".format(diff, "s" if diff > 1 else ""))
 
 	def notice(self, to, msg):
 		msg = msg.replace("\x07", "")
@@ -59,6 +62,7 @@ class Circa(client.Client):
 
 	def registered(self, nick, m):
 		self.send("MODE", nick, "+B")
+		self.send("MODE", nick, "-x")
 		for chan in self.conf["channels"]:
 			self.join("#" + chan)
 		self.server.admins = set(map(nicklower, self.conf["admins"]))
@@ -77,10 +81,13 @@ class Circa(client.Client):
 		return any(match(mask, prefix) for mask in self.server.admins)
 
 	def load_module(self, name):
+		if name in self.modules:
+			return "{0} already loaded".format(name)
 		try:
-			if "modules." + name in sys.modules:
-				m = importlib.reload(sys.modules["modules." + name]).module
-			m = importlib.import_module("modules." + name).module
+			mod = importlib.import_module("modules." + name)
+			# if it's been imported before, make sure we get the latest version
+			importlib.reload(mod)
+			m = mod.module
 			if hasattr(m, "require"):
 				for mod in m.require.split():
 					if mod == "cmd":
@@ -91,8 +98,9 @@ class Circa(client.Client):
 				for listener in listeners:
 					self.add_listener(event, listener)
 			logging.info("Loaded {0}".format(name))
+			return 0
 		except Exception as e:
-			raise Exception("Cannot import {0}: {1}".format(name, e))
+			return "Cannot import {0}: {1}".format(name, e)
 
 	def unload_module(self, name):
 		if name not in self.modules:

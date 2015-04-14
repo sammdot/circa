@@ -76,12 +76,13 @@ class SedModule:
 				if "i" in flags: f |= re.I
 				if "x" in flags: f |= re.X
 				if "s" in flags: f |= re.S
-				rhs = rhs.replace("\\/", "/").replace("\\", "\\\\")
+				rhs = rhs.replace("\\/", "/")
 				rhs = re.sub(r"(?<!\\)(\\)(?=\d+|g<\w+>)", r"\\\\", rhs)
 				rhs = unescape(rhs)
 				count = int("g" not in flags)
 				t = u[len("\x01ACTION "):] if u.startswith("\x01ACTION ") else u
 				t = re.sub(lhs, rhs, t, count=count, flags=f)
+				t = t.replace("\n", " ").replace("\r", " ")
 				if u.startswith("\x01ACTION ") or t.startswith("\x01ACTION "):
 					if t.startswith("\x01ACTION "):
 						t = t[len("\x01ACTION "):]
@@ -118,6 +119,7 @@ class SedModule:
 				t = tr(lhslst, rhslst, t)
 				if "s" in flags:
 					t = squeeze(rhslst, t)
+				t = t.replace("\n", " ").replace("\r", " ")
 				if u.startswith("\x01ACTION "):
 					t = t.replace("\x01", "")
 					self.circa.say(to, "\x02* {0}\x02 {1}".format(user, t))

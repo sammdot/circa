@@ -11,13 +11,11 @@ class ModuleModule:
 	def load(self, fr, to, msg, m):
 		if self.circa.is_admin(m.prefix):
 			module = msg.split()[0]
-			if module in self.circa.modules:
-				return
-			try:
-				self.circa.load_module(module)
-				self.circa.say(to, "Loaded {0}".format(module))
-			except Exception as e:
-				self.circa.say(to, "\x0304\x02Error\x02\x03: {0}".format(e))
+			r = self.circa.load_module(module)
+			if r == 0:
+				self.circa.notice(fr, "Loaded {0}".format(module))
+			else:
+				self.circa.notice(fr, "\x0304\x02Error\x02\x03: {0}".format(r))
 
 	def unload(self, fr, to, msg, m):
 		if self.circa.is_admin(m.prefix):
@@ -25,18 +23,18 @@ class ModuleModule:
 			if module not in self.circa.modules:
 				return
 			self.circa.unload_module(module)
-			self.circa.say(to, "Unloaded {0}".format(module))
+			self.circa.notice(fr, "Unloaded {0}".format(module))
 
 	def reload(self, fr, to, msg, m):
 		if self.circa.is_admin(m.prefix):
 			module = msg.split()[0]
 			if module in self.circa.modules:
 				self.circa.unload_module(module)
-			try:
-				self.circa.load_module(module)
-				self.circa.say(to, "Reloaded {0}".format(module))
-			except Exception as e:
-				self.circa.say(to, "\x0304\x02Error\x02\x03: {0}".format(e))
+			r = self.circa.load_module(module)
+			if r == 0:
+				self.circa.notice(fr, "Reloaded {0}".format(module))
+			else:
+				self.circa.notice(fr, "\x0304\x02Error\x02\x03: {0}".format(r))
 
 	def modules(self, fr, to, msg, m):
 		self.circa.notice(fr, "Available modules: " + " ".join(sorted(self.circa.modules.keys())))

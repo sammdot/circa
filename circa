@@ -7,7 +7,6 @@ import logging
 import pathlib
 import signal
 import sys
-import yaml
 
 from circa import Circa
 

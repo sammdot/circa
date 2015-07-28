@@ -67,6 +67,7 @@ class Calculator:
 		"@<": lambda self: self.sort(True),
 		"@+": lambda self: self.sum(),
 		"@*": lambda self: self.product(),
+		"@^": lambda self: self.average(),
 		"->": lambda self: self.range(),
 		"d": lambda self: self.diceroll(),
 		"(": lambda self: self.begstack(),
@@ -92,6 +93,8 @@ class Calculator:
 		self.stack = [sum(self.stack)]
 	def product(self):
 		self.stack = [functools.reduce(operator.mul, self.stack, 1)]
+	def average(self):
+		self.stack = [sum(self.stack) / len(self.stack)]
 	def range(self):
 		to, fr = self.stack.pop(), self.stack.pop()
 		self.stack.extend(range(fr, to + 1) if to > fr else range(to, fr + 1)[::-1])

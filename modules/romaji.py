@@ -18,6 +18,9 @@ class RomajiModule:
 		out = subprocess.check_output("echo -n {0} | kakasi -i utf8 -w | " \
 			"kakasi -i utf8 -Ha -Ja -Ka -Ea -ka".format(text), shell=True).decode("utf-8")
 		out = out.replace(" .", ".").replace(" !", "!")
+		# Replace long vowels
+		out = out.replace("a^", "ā").replace("e^", "ē").replace("i^", "ī") \
+			.replace("o^", "ō").replace("u^", "ū")
 		if msg != out:
 			d = diff(msg, out)
 			if "\x1f" not in d:

@@ -103,12 +103,11 @@ class Calculator:
 		self.stack.extend([random.randint(1, b) for i in range(a)])
 
 	def begstack(self):
-		self.stackstack.append(self.stack)
-		self.stack = []
+		self.stackstack.append(self.stack[:])
 	def endstack(self):
 		if len(self.stackstack) == 0:
 			raise StackUnderflow
-		self.stack.extend(self.stackstack.pop())
+		self.stack = self.stackstack.pop() + self.stack
 
 	def calc(self, expr, queue):
 		self.stack = []

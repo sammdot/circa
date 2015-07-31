@@ -104,7 +104,6 @@ class Calculator:
 
 	def begstack(self):
 		self.stackstack.append(self.stack[:])
-		self.stack = []
 	def endstack(self):
 		if len(self.stackstack) == 0:
 			raise StackUnderflow

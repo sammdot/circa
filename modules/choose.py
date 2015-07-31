@@ -5,7 +5,6 @@ class ChooseModule:
 		self.circa = circa
 		self.events = {
 			"cmd.roll": [self.roll],
-			"message": [self.dotchoose],
 			"cmd.choose": [self.choose]
 		}
 		self.docs = {
@@ -34,10 +33,5 @@ class ChooseModule:
 		if len(opts) <= 1:
 			return
 		self.circa.say(to, fr + ": " + random.choice(opts))
-
-	def dotchoose(self, fr, to, msg, m):
-		target = fr if to == self.circa.nick else to
-		if msg.startswith(".choose"):
-			self.choose(fr, target, msg[len(".choose"):], m)
 
 module = ChooseModule

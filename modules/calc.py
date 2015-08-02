@@ -5,8 +5,12 @@ import operator
 import random
 import re
 import time
+import multiprocessing
 
 class StackUnderflow(Exception):
+	pass
+
+class TimeLimitExceeded(Exception):
 	pass
 
 def floor(n):
@@ -16,13 +20,24 @@ def ceil(n):
 	return math.ceil(n.real) + math.ceil(n.imag) if isinstance(n, complex) \
 		else math.ceil(n)
 
+def simplify(n):
+	if isinstance(n, complex):
+		return n
+	try:
+		if float(n).is_integer():
+			return int(n)
+	except OverflowError:
+		return float('inf')
+	return n
+
 class Calculator:
 	"""A postfix calculator engine."""
 	opers = [
 		{ # no operands
 			"time": lambda: int(time.time()),
-			"rand": lambda: random.random(),
+			"rand": random.random,
 			"e": lambda: math.e, "pi": lambda: math.pi, "i": lambda: 1j,
+			"c": lambda: 299792458, "g": 9.80665,
 			"-i": lambda: -1j
 		},
 		{ # 1 operand
@@ -52,6 +67,7 @@ class Calculator:
 		"@<": lambda self: self.sort(True),
 		"@+": lambda self: self.sum(),
 		"@*": lambda self: self.product(),
+		"@^": lambda self: self.average(),
 		"->": lambda self: self.range(),
 		"d": lambda self: self.diceroll(),
 		"(": lambda self: self.begstack(),
@@ -77,6 +93,8 @@ class Calculator:
 		self.stack = [sum(self.stack)]
 	def product(self):
 		self.stack = [functools.reduce(operator.mul, self.stack, 1)]
+	def average(self):
+		self.stack = [sum(self.stack) / len(self.stack)]
 	def range(self):
 		to, fr = self.stack.pop(), self.stack.pop()
 		self.stack.extend(range(fr, to + 1) if to > fr else range(to, fr + 1)[::-1])
@@ -85,14 +103,13 @@ class Calculator:
 		self.stack.extend([random.randint(1, b) for i in range(a)])
 
 	def begstack(self):
-		self.stackstack.append(self.stack)
-		self.stack = []
+		self.stackstack.append(self.stack[:])
 	def endstack(self):
 		if len(self.stackstack) == 0:
 			raise StackUnderflow
-		self.stack.extend(self.stackstack.pop())
+		self.stack = self.stackstack.pop() + self.stack
 
-	def calc(self, expr):
+	def calc(self, expr, queue):
 		self.stack = []
 		self.stackstack = []
 		for token in expr.split():
@@ -147,8 +164,7 @@ class Calculator:
 					self.stack.append(val)
 				except ValueError:
 					pass
-		self.stack = [int(i) if not isinstance(i, complex) and \
-			float(i).is_integer() else i for i in self.stack]
+		queue.put([simplify(i) for i in self.stack])
 
 class CalcModule:
 	require = "cmd"
@@ -156,6 +172,7 @@ class CalcModule:
 	def __init__(self, circa):
 		self.circa = circa
 		self.contexts = {}
+		self.queue = multiprocessing.Queue()
 
 		self.events = {
 			"cmd.calc": [self.calc],
@@ -186,13 +203,21 @@ class CalcModule:
 	def _calc(self, to, expr):
 		self.ensure_context(to)
 		try:
-			self.contexts[to].calc(expr)
+			proc = multiprocessing.Process(target=self.contexts[to].calc, args=(expr, self.queue))
+			proc.start()
+			proc.join(2)
+			if proc.is_alive():
+				proc.terminate()
+				raise TimeLimitExceeded
 		except ZeroDivisionError:
 			self.circa.say(to, "\x0304\x02Error\x02\x03: Division by zero")
 			return []
 		except StackUnderflow:
 			self.circa.say(to, "\x0304\x02Error\x02\x03: Stack underflow")
-		return self.contexts[to].stack or []
+			return []
+		except TimeLimitExceeded:
+			self.circa.say(to, "\x0304\x02Error\x02\x03: Time limit exceeded")
+		return self.queue.get()
 
 	def str(self, num, base=10):
 		if base not in self.strfuncs:

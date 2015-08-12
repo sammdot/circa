@@ -69,6 +69,7 @@ def parse_args():
 			conf["channels"] = list(cp["channels"].keys())
 			conf["modules"] = list(cp["modules"].keys())
 			conf["admins"] = list(cp["admins"].keys())
+			conf["linelimit"] = int(conf["linelimit"])
 
 	logging.basicConfig(filename=conf["log"],
 		level=logging.DEBUG if conf["verbose"] else logging.INFO,

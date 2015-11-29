@@ -1,10 +1,11 @@
+from collections import deque
 from util.nick import nickeq, nicklower
 
 class User:
 	def __init__(self, nick, mode=None):
 		self.nick = nicklower(nick)
 		self.mode = set(mode) if mode else set()
-		self.messages = []
+		self.messages = deque(maxlen=256)
 
 	def __repr__(self):
 		return "User('{0}')".format(self.nick)

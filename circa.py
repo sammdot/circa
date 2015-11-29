@@ -49,10 +49,11 @@ class Circa(client.Client):
 
 	def say(self, to, msg):
 		lines = msg.replace("\x07", "").splitlines()
-		for line in lines[:5]:
+		limit = self.conf["linelimit"]
+		for line in lines[:limit]:
 			client.Client.say(self, to, line)
-		if len(lines) > 5:
-			diff = len(lines) - 5
+		if len(lines) > limit:
+			diff = len(lines) - limit
 			client.Client.say(self, to, "[... {0} more line{1}]".format(diff, "s" if diff > 1 else ""))
 
 	def notice(self, to, msg):

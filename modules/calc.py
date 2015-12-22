@@ -87,7 +87,7 @@ class Calculator:
 		"@*": lambda self: self.product(),
 		"@^": lambda self: self.average(),
 		"->": lambda self: self.range(),
-		"factor": lambda self: self.factor(),
+	#	"factor": lambda self: self.factor(),
 		"d": lambda self: self.diceroll(),
 		"(": lambda self: self.begstack(),
 		")": lambda self: self.endstack(),

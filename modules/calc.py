@@ -107,7 +107,7 @@ class Calculator:
 	def endstack(self):
 		if len(self.stackstack) == 0:
 			raise StackUnderflow
-		self.stack = self.stackstack.pop() + self.stack
+		self.stack = self.stackstack.pop() + self.stack.pop()
 
 	def calc(self, expr, queue):
 		self.stack = []

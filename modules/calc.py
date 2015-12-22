@@ -30,6 +30,24 @@ def simplify(n):
 		return float('inf')
 	return n
 
+def primes(n):
+	""" http://stackoverflow.com/a/28250469 """
+	if n < 2:
+		return
+	yield 2
+	plist = [2]
+	for i in range(3, n):
+		test = True
+		for j in plist:
+			if j > n ** 0.5:
+				break
+			if i % j == 0:
+				test = False
+				break
+		if test:
+			plist.append(i)
+			yield i
+
 class Calculator:
 	"""A postfix calculator engine."""
 	opers = [
@@ -69,6 +87,7 @@ class Calculator:
 		"@*": lambda self: self.product(),
 		"@^": lambda self: self.average(),
 		"->": lambda self: self.range(),
+		"factor": lambda self: self.factor(),
 		"d": lambda self: self.diceroll(),
 		"(": lambda self: self.begstack(),
 		")": lambda self: self.endstack(),
@@ -102,12 +121,21 @@ class Calculator:
 		b, a = self.stack.pop(), self.stack.pop()
 		self.stack.extend([random.randint(1, b) for i in range(a)])
 
+	def factor(self):
+		n = self.stack.pop()
+		for p in primes(n):
+			while n % p == 0:
+				self.stack.append(p)
+				n = n // p
+				if n == 1:
+					return
+
 	def begstack(self):
 		self.stackstack.append(self.stack[:])
 	def endstack(self):
 		if len(self.stackstack) == 0:
 			raise StackUnderflow
-		self.stack = self.stackstack.pop() + self.stack
+		self.stack = self.stackstack.pop() + self.stack.pop()
 
 	def calc(self, expr, queue):
 		self.stack = []

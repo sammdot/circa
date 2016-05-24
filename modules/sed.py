@@ -46,6 +46,9 @@ def squeeze(lst, src):
 def tr(frm, to, src):
 	return src.translate(str.maketrans(frm, to))
 
+def create_sub_function(rhs):
+	return lambda matchobj: "\x16{0}\x16".format(rhs)
+
 class SedModule:
 	subre = re.compile(r"^(?:(\S+)[:,]\s)?(?:s|(.+?)/s)/((?:\\/|[^/])+)\/((?:\\/|[^/])*?)/([gixs]{0,4})?(?: .*)?$")
 	trre = re.compile("^(?:(\S+)[:,]\s)?(?:y|(.+?)/y)/((?:\\/|[^/])+)\/((?:\\/|[^/])*?)/([cds]{0,3})?(?: .*)?$")
@@ -79,7 +82,7 @@ class SedModule:
 				rhs = unescape(rhs)
 				count = int("g" not in flags)
 				t = u[len("\x01ACTION "):] if u.startswith("\x01ACTION ") else u
-				t = re.sub(lhs, rhs, t, count=count, flags=f)
+				t = re.sub(lhs, create_sub_function(rhs), t, count=count, flags=f)
 				t = t.replace("\n", " ").replace("\r", " ")
 				if u.startswith("\x01ACTION ") or t.startswith("\x01ACTION "):
 					if t.startswith("\x01ACTION "):

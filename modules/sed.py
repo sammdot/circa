@@ -94,7 +94,7 @@ class SedModule:
 		if match:
 			target, search, lhs, rhs, flags = match.groups()
 			user = target or fr
-			msgs = self.circa.channels[to[1:]].users[user].messages[::-1]
+			msgs = reversed(self.circa.channels[to[1:]].users[user].messages)
 			msgs = [line for line in msgs if not self.trre.match(line)]
 			if search:
 				msgs = [line for line in msgs if search.lower() in line.lower()]
